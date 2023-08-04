@@ -35,49 +35,72 @@
 </head>
 <body>
     <div class="container text-center">
-        <script>
-        let checkboxesContainer; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ checkboxesContainer
-        let item_id2Textbox; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ textbox
+          <script>
+            let checkboxesContainer; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ checkboxesContainer
+            let item_id2Textbox; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ textbox
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const checkListTypeSelect = document.getElementById("check_list_type");
-            checkboxesContainer = document.getElementById("checkboxes"); // กำหนดค่าให้กับตัวแปร checkboxesContainer
+                document.addEventListener("DOMContentLoaded", function() {
+                    const checkListTypeSelect = document.getElementById("check_list_type");
+                    checkboxesContainer = document.getElementById("checkboxes"); // กำหนดค่าให้กับตัวแปร checkboxesContainer
 
-            // ... (ส่วนของฟังก์ชันอื่นๆ ในการสร้าง checkbox ในส่วนนี้ไม่ได้แก้ไข) ...
 
-            // เรียกใช้งานฟังก์ชัน createInputTextbox เพื่อสร้าง textbox
-            createInputTextbox();
+                    // เรียกใช้งานฟังก์ชัน createInputTextbox เพื่อสร้าง textbox
+                    createInputTextbox();
 
-            // นำค่าของ textbox ไปเก็บในตัวแปร item_id2Textbox
-            item_id2Textbox = document.getElementById("item_id2_textbox");
+                    // นำค่าของ textbox ไปเก็บในตัวแปร item_id2Textbox
+                    item_id2Textbox = document.getElementById("item_id2_textbox");
 
-            // ... (ส่วนของ event listener อื่นๆ ในการอัปเดต checkbox ไม่ได้แก้ไข) ...
+                    // เพิ่ม event listener ให้กับ checkboxes เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน checkbox
+                    document.querySelectorAll("input[name='checklist_item']").forEach(checkbox => {
+                    checkbox.addEventListener("change", function(event) {
+                        const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                        const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
 
-            // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
-            document.querySelector("form").addEventListener("submit", function(event) {
-                // กำหนดค่า value ของ checkbox เป็นค่าของ textbox
-                const checkboxes = document.getElementsByName("checklist_item");
-                checkboxes.forEach(checkbox => {
-                    checkbox.value = item_id2Textbox.value;
+                        checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+
+                        // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
+                        const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                        const selectedValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+                        console.log(selectedValues);
+                    });
                 });
-            });
-        });
 
-        // สร้าง textbox สำหรับรหัสเลขที่หลัง checkbox ที่มีค่า item_id2
-        function createInputTextbox() {
-            const inputTextbox = document.createElement("input");
-            inputTextbox.type = "text";
-            inputTextbox.name = "textbox_item";
-            inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
-            inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
-            checkboxesContainer.appendChild(inputTextbox);
+                    // เพิ่ม event listener ให้กับ textbox เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน textbox
+                    item_id2Textbox.addEventListener("input", function() {
+                        const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
+                        const checkboxes = document.querySelectorAll("input[name='checklist_item']");
 
-            // Add a line break after the textbox
-            const br = document.createElement("br");
-            checkboxesContainer.appendChild(br);
-        }
-    </script>
+                        checkboxes.forEach(checkbox => {
+                            const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                            checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                        });
+                    });
 
+                    // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
+                    document.querySelector("form").addEventListener("submit", function(event) {
+                        // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
+                        const checkboxes = document.getElementsByName("checklist_item");
+                        checkboxes.forEach(checkbox => {
+                            checkbox.value = checkbox.dataset.originalValue + "-" + item_id2Textbox.value;
+                        });
+                    });
+                });
+
+                // สร้าง textbox สำหรับรหัสเลขที่หลัง checkbox ที่มีค่า item_id2
+                function createInputTextbox() {
+                    const inputTextbox = document.createElement("input");
+                    inputTextbox.type = "text";
+                    inputTextbox.name = "textbox_item";
+                    inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
+                    inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
+                    checkboxesContainer.appendChild(inputTextbox);
+
+                    // Add a line break after the textbox
+                    const br = document.createElement("br");
+                    checkboxesContainer.appendChild(br);
+                }
+
+        </script>
         <br>
         <h1>QR Code Checklist</h1><br>
         <form method="post" action="{% url 'generate_qr_code' %}">
@@ -104,7 +127,7 @@
                 <!-- Checkboxes will be populated here using JavaScript -->
             </div>
             <br>
-           <input type="submit" value="Generate QR Code" class="generate_qr_btn">
+           <input type="submit" value="Generate QR Code" class="generate_qr_bปtn">
         </form>
         <br>
         {% if qr_code_path %}
@@ -136,17 +159,16 @@
         const checkboxesContainer = document.getElementById("checkboxes");
 
         function createCheckboxWithLabel(value, labelText, isSubLabel) {
+            const label = document.createElement("label");
+            label.innerHTML = labelText;
+            checkboxesContainer.appendChild(label);
+
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.name = "checklist_item";
             checkbox.value = value; // ใช้ตัวแปร value ที่ส่งมาจาก Django View เป็นค่า value ของ checkbox
-            checkboxesContainer.appendChild(checkbox);
-
-            if (labelText) {
-                const label = document.createElement("label");
-                label.innerHTML = labelText;
-                checkboxesContainer.appendChild(label);
-            }
+            checkbox.dataset.originalValue = value; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
+            label.appendChild(checkbox);
 
             // ตรวจสอบว่ามี <br> ก่อนหน้านี้หรือไม่
             const lastElement = checkboxesContainer.lastChild;
@@ -168,11 +190,12 @@
             }
         }
 
-        function createInputTextbox() {
+       function createInputTextbox() {
             const inputTextbox = document.createElement("input");
             inputTextbox.type = "text";
             inputTextbox.name = "textbox_item";
             inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
+            inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
             checkboxesContainer.appendChild(inputTextbox);
 
             // Add a line break after the textbox
@@ -183,10 +206,10 @@
             inputTextbox.addEventListener("input", function() {
                 // Get all checkboxes with name "checklist_item"
                 const checkboxes = document.getElementsByName("checklist_item");
-
-                // Update the value of each checkbox to the textbox value
+                const textboxValue = inputTextbox.value; // ค่าที่อยู่ใน textbox
                 checkboxes.forEach(checkbox => {
-                    checkbox.value = inputTextbox.value;
+                    const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                    checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
                 });
             });
         }
@@ -239,8 +262,6 @@
         });
     });
 </script>
-
-
 
 
 </body>
