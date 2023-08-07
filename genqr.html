@@ -67,14 +67,24 @@
 
                     // เพิ่ม event listener ให้กับ textbox เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน textbox
                     item_id2Textbox.addEventListener("input", function() {
-                        const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
-                        const checkboxes = document.querySelectorAll("input[name='checklist_item']");
+                    const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
+                    const checkboxes = document.querySelectorAll("input[name='checklist_item']");
 
-                        checkboxes.forEach(checkbox => {
-                            const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
-                            checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
-                        });
+                    checkboxes.forEach(checkbox => {
+                        const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                    const checkboxValueParts = checkbox.value.split("-"); // แยกค่า checkbox.value เป็นส่วนย่อยๆ
+
+                    // ตรวจสอบว่าค่าเดิมและค่าใหม่ของ textbox เปลี่ยนแปลงหรือไม่
+                        if (checkboxValueParts.length === 2) {
+                            const oldValue = checkboxValueParts[1];
+                            if (oldValue !== textboxValue) {
+                                checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                            }
+                        }
                     });
+
+                    });
+
 
                     // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
                     document.querySelector("form").addEventListener("submit", function(event) {
@@ -178,6 +188,7 @@
             }
         }
 
+
         function createSubLabel(labelText) {
             if (labelText) {
                 const label = document.createElement("label");
@@ -231,10 +242,10 @@
                     data.forEach(item => {
                         // Display unity_name as a main checkbox if it's not the same as the last displayed one
                          if (item.unity_name !== lastUnityName) {
+                            createCheckboxWithLabel(selectedType === "1" ? item.un_item_id : item.item_id2, item.unity_name, false);
                             if (selectedType !== "1") {
                                 createInputTextbox(); // สร้าง textbox หากไม่ใช่ selectedType เป็น "1"
                             }
-                            createCheckboxWithLabel(selectedType === "1" ? item.un_item_id : item.item_id2, item.unity_name, false);
                             lastUnityName = item.unity_name;
                         }
 
@@ -266,4 +277,3 @@
 
 </body>
 </html>
-
