@@ -1,0 +1,155 @@
+<!--<!DOCTYPE html>-->
+<!--{% load static %}-->
+<!--<html>-->
+<!--<head>-->
+<!--    {% include 'master.html' %}-->
+<!--    <title>QR Code Checklist</title>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div class="container text-center">-->
+<!--    <br>-->
+<!--    <h1>QR Code Checklist</h1><br>-->
+<!--    <form method="post" action="{% url 'generate_qr_code' %}">-->
+<!--        {% csrf_token %}-->
+<!--        <label for="check_list_type">Check_list_type</label>-->
+<!--        <select id="check_list_type" name="check_list_type" required>-->
+<!--            {% for list_type in check_list_types %}-->
+<!--            <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>-->
+<!--            {% endfor %}-->
+<!--        </select>-->
+<!--        <br><br>-->
+<!--        <label for="item_code">Item Code:</label>-->
+<!--        <input type="text" id="item_code" name="item_code" required>-->
+
+<!--        <label for="department">Department:</label>-->
+<!--        <select id="department" name="department" required>-->
+<!--            {% for dept in departments %}-->
+<!--            <option value="{{ dept.id }}">{{ dept.name }}</option>-->
+<!--            {% endfor %}-->
+<!--        </select>-->
+<!--        <br><br>-->
+<!--        <div id="checkboxes">-->
+<!--            &lt;!&ndash; Checkboxes will be populated here using JavaScript &ndash;&gt;-->
+<!--        </div>-->
+<!--        <br>-->
+<!--        <input type="submit" value="Generate QR Code">-->
+<!--    </form>-->
+<!--    <br>-->
+<!--    {% if qr_code_path %}-->
+<!--    <h2>QR Code</h2>-->
+<!--    <img src="../media/{{ qr_code_path }}" alt="QR Code">-->
+<!--    {% endif %}-->
+<!--</div>-->
+
+<!--<script>-->
+<!--// JavaScript code to update checkboxes based on selected check_list_type-->
+<!--document.addEventListener("DOMContentLoaded", function() {-->
+<!--    const checkListTypeSelect = document.getElementById("check_list_type");-->
+<!--    const checkboxesContainer = document.getElementById("checkboxes");-->
+
+<!--    checkListTypeSelect.addEventListener("change", function() {-->
+<!--        const selectedType = checkListTypeSelect.value;-->
+<!--        // Get the list of checkboxes for the selected type from Django view using AJAX-->
+<!--        fetch(`/get_checkboxes/${selectedType}/`)-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                // Clear existing checkboxes-->
+<!--                checkboxesContainer.innerHTML = "";-->
+
+<!--                // Populate checkboxes-->
+<!--                data.forEach(item => {-->
+<!--                    const checkbox = document.createElement("input");-->
+<!--                    checkbox.type = "checkbox";-->
+<!--                    checkbox.name = "checklist_item";-->
+<!--                    checkbox.value = item.id;-->
+<!--                    checkboxesContainer.appendChild(checkbox);-->
+
+<!--                    const label = document.createElement("label");-->
+<!--                    label.innerHTML = item.name;-->
+<!--                    checkboxesContainer.appendChild(label);-->
+
+<!--                    const br = document.createElement("br");-->
+<!--                    checkboxesContainer.appendChild(br);-->
+<!--                });-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("Error fetching checkboxes:", error);-->
+<!--            });-->
+<!--    });-->
+<!--});-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const checkListTypeSelect = document.getElementById("check_list_type");
+    const checkboxesContainer = document.getElementById("checkboxes");
+
+    function createCheckboxWithLabel(value, labelText) {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "checklist_item";
+        checkbox.value = value;
+        checkboxesContainer.appendChild(checkbox);
+
+        const label = document.createElement("label");
+        label.innerHTML = labelText;
+        checkboxesContainer.appendChild(label);
+    }
+
+    function createSubLabel(labelText) {
+        const subLabel = document.createElement("label");
+        subLabel.innerHTML = labelText;
+        checkboxesContainer.appendChild(subLabel);
+    }
+
+    function createLineBreak() {
+        const br = document.createElement("br");
+        checkboxesContainer.appendChild(br);
+    }
+
+    checkListTypeSelect.addEventListener("change", function() {
+        const selectedType = checkListTypeSelect.value;
+        // Get the list of checkboxes for the selected type from Django view using AJAX
+        fetch(`/get_checkboxes/${selectedType}/`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing checkboxes
+                checkboxesContainer.innerHTML = "";
+
+                // Variables to store the last displayed unity_name and detail_name
+                let lastUnityName = null;
+                let lastDetailName = null;
+
+                // Populate checkboxes
+                data.forEach(item => {
+                    // Display unity_name if it's not the same as the last displayed one
+                    if (item.unity_name !== lastUnityName) {
+                        createCheckboxWithLabel(item.id, item.unity_name);
+                        lastUnityName = item.unity_name;
+                    }
+
+                    // Check if there's a detail_name and display it if it's not the same as the last displayed one
+                    if (item.detail_name !== lastDetailName) {
+                        createSubLabel(item.detail_name);
+                        lastDetailName = item.detail_name;
+                    }
+
+                    // Check if there's an un_sub_num
+                    if (item.un_sub_num) {
+                        // Create a sub-label for un_sub_num (หัวข้อ1.1.1)
+                        createSubLabel(item.un_sub_num);
+                    }
+
+                    // Add a line break after each item (รายการ)
+                    createLineBreak();
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching checkboxes:", error);
+            });
+    });
+});
+</script>

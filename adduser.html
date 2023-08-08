@@ -1,0 +1,48 @@
+<html>
+<head>
+   {% if request.session.id_user_type == 1 %}
+    <title>Add User</title>
+    {% load static %}
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% include 'master.html' %}
+</head>
+<body>
+
+    <div class="text-center">
+            <br><h3>เพิ่มผู้ใช้งานในระบบ</h3><br><br>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="text-center">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username"><br><br>
+        </div>
+        <div class="text-center">
+            <label for="password">Password :</label>
+            <input type="password" id="password" name="password"><br><br>
+        </div>
+         <div class="text-center">
+                <label for="user_type">User Type:</label>
+                <select id="user_type" name="user_type"  required>
+                    {% for user_type in user_types %}
+                        <option value="{{ user_type.0 }}">{{ user_type.1 }}</option>
+                    {% endfor %}
+                </select>
+         </div>
+
+        <div class="text-center">
+            <br><input type="submit" value="Add User">
+        </div>
+    </form>
+</body>
+{% else %}
+    <script>
+        // แสดง confirm box เมื่อหน้านี้ถูกเรียกใช้
+        window.onload = function () {
+            alert("คุณไม่มีสิทธิ์ในการเพิ่มผู้ใช้งาน");
+            window.history.back();
+        };
+    </script>
+{% endif %}
+</html>

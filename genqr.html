@@ -52,18 +52,26 @@
 
                     // เพิ่ม event listener ให้กับ checkboxes เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน checkbox
                     document.querySelectorAll("input[name='checklist_item']").forEach(checkbox => {
-                    checkbox.addEventListener("change", function(event) {
-                        const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
-                        const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
+                        checkbox.addEventListener("change", function(event) {
+                            const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                            const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
 
-                        checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                            checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
 
-                        // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
-                        const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
-                        const selectedValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
-                        console.log(selectedValues);
+                            // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
+                            const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                            const selectedValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+                            console.log(selectedValues);
+
+                            // นำค่าที่ถูกเลือกและค่าของ textbox ไปอัปเดตในรูปแบบของ "item_id2-textbox_value" และส่งค่าไปยังฟอร์มเมื่อมีการ submit
+                            const item_id2TextboxValue = item_id2Textbox.value;
+                            checkboxes.forEach(checkbox => {
+                                if (checkbox.checked) {
+                                    checkbox.value = `${checkbox.dataset.originalValue}-${item_id2TextboxValue}`;
+                                }
+                            });
+                        });
                     });
-                });
 
                     // เพิ่ม event listener ให้กับ textbox เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน textbox
                     item_id2Textbox.addEventListener("input", function() {
@@ -88,7 +96,20 @@
 
                     // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
                     document.querySelector("form").addEventListener("submit", function(event) {
+                        // ตรวจสอบว่ามี checkbox ที่ถูกเลือกอย่างน้อยหนึ่งช่องหรือไม่
+                        const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                        if (selectedCheckboxes.length === 0) {
+                            event.preventDefault(); // ยกเลิกการส่งฟอร์มเมื่อไม่มี checkbox ที่ถูกเลือก
+                            alert("กรุณาเลือกอย่างน้อยหนึ่งช่อง");
+                            return;
+                        }
+                        const selectedCheckboxesInput = document.createElement("input");
+                        selectedCheckboxesInput.type = "hidden";
+                        selectedCheckboxesInput.name = "selected_checkboxes";
+                        selectedCheckboxesInput.value = selectedCheckboxes.length > 0 ? selectedCheckboxes.map(checkbox => checkbox.value).join(',') : '';
+                        form.appendChild(selectedCheckboxesInput);
                         // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
+                        const item_id2Textbox = document.getElementById("item_id2_textbox");
                         const checkboxes = document.getElementsByName("checklist_item");
                         checkboxes.forEach(checkbox => {
                             checkbox.value = checkbox.dataset.originalValue + "-" + item_id2Textbox.value;
@@ -103,6 +124,7 @@
                     inputTextbox.name = "textbox_item";
                     inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
                     inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
+                    inputTextbox.style.display = "none"; // ซ่อน textbox นอก lable ของ checkbox
                     checkboxesContainer.appendChild(inputTextbox);
 
                     // Add a line break after the textbox
@@ -113,7 +135,7 @@
         </script>
         <br>
         <h1>QR Code Checklist</h1><br>
-        <form method="post" action="{% url 'generate_qr_code' %}">
+        <form method="post" action="{% url 'generate_qr_code' %}" onsubmit="return confirmGenerateQRCode()">
             {% csrf_token %}
             <label for="check_list_type">Check_list_type</label>
             <select id="check_list_type" name="check_list_type" required>
@@ -122,8 +144,12 @@
                 {% endfor %}
             </select>
             <br><br>
-            <label for="item_code">Item Code:</label>
-            <input type="text" id="item_code" name="item_code" required>
+            <label for="area">Area :</label>
+            <select id="area" name="area" required>
+                {% for area in areas %}
+                <option value="{{ area.id }}">{{ area.name }}</option>
+                {% endfor %}
+            </select>
 
             <label for="department">Department:</label>
             <select id="department" name="department" required>
@@ -138,6 +164,11 @@
             </div>
             <br>
            <input type="submit" value="Generate QR Code" class="generate_qr_bปtn">
+           <script>
+                function confirmGenerateQRCode() {
+                    return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
+                }
+           </script>
         </form>
         <br>
         {% if qr_code_path %}
@@ -167,6 +198,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const checkListTypeSelect = document.getElementById("check_list_type");
         const checkboxesContainer = document.getElementById("checkboxes");
+        let selectedType = "";
 
         function createCheckboxWithLabel(value, labelText, isSubLabel) {
             const label = document.createElement("label");
@@ -180,6 +212,20 @@
             checkbox.dataset.originalValue = value; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
             label.appendChild(checkbox);
 
+            if (selectedType !== "1") {
+                const inputTextbox = document.createElement("input");
+                inputTextbox.type = "text";
+                inputTextbox.name = "textbox_item";
+                inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
+                label.appendChild(inputTextbox);
+
+                // Add event listener to update checkbox value when the textbox value changes
+                inputTextbox.addEventListener("input", function() {
+                    // Update the checkbox value with the combined value
+                    checkbox.value = `${value}-${inputTextbox.value}`;
+                });
+            }
+
             // ตรวจสอบว่ามี <br> ก่อนหน้านี้หรือไม่
             const lastElement = checkboxesContainer.lastChild;
             if (!(lastElement instanceof HTMLBRElement)) {
@@ -187,7 +233,6 @@
                 checkboxesContainer.appendChild(br);
             }
         }
-
 
         function createSubLabel(labelText) {
             if (labelText) {
@@ -201,32 +246,8 @@
             }
         }
 
-       function createInputTextbox() {
-            const inputTextbox = document.createElement("input");
-            inputTextbox.type = "text";
-            inputTextbox.name = "textbox_item";
-            inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
-            inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
-            checkboxesContainer.appendChild(inputTextbox);
-
-            // Add a line break after the textbox
-            const br = document.createElement("br");
-            checkboxesContainer.appendChild(br);
-
-            // Add event listener to update checkbox value when the textbox value changes
-            inputTextbox.addEventListener("input", function() {
-                // Get all checkboxes with name "checklist_item"
-                const checkboxes = document.getElementsByName("checklist_item");
-                const textboxValue = inputTextbox.value; // ค่าที่อยู่ใน textbox
-                checkboxes.forEach(checkbox => {
-                    const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
-                    checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
-                });
-            });
-        }
-
         checkListTypeSelect.addEventListener("change", function() {
-            const selectedType = checkListTypeSelect.value;
+            selectedType = checkListTypeSelect.value; // กำหนดค่า selectedType เมื่อผู้ใช้เลือกประเภท checklist
             // Get the list of checkboxes for the selected type from Django view using AJAX
             fetch(`/get_checkboxes/${selectedType}/`)
                 .then(response => response.json())
@@ -241,7 +262,7 @@
                     // Populate checkboxes and textboxes
                     data.forEach(item => {
                         // Display unity_name as a main checkbox if it's not the same as the last displayed one
-                         if (item.unity_name !== lastUnityName) {
+                        if (item.unity_name !== lastUnityName) {
                             createCheckboxWithLabel(selectedType === "1" ? item.un_item_id : item.item_id2, item.unity_name, false);
                             if (selectedType !== "1") {
                                 createInputTextbox(); // สร้าง textbox หากไม่ใช่ selectedType เป็น "1"

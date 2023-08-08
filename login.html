@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}Login{% endblock %}</title>
+  {% load bootstrap5 %}
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  {% load static %}
+  <style>
+    .custom-button {
+      width: 150px;
+      height: 40px;
+    }
+    .login_bth {
+      width: 150px;
+      height: 40px;
+    }
+  </style>
+</head>
+
+<div class="text-center">
+    <br><h3>Smart Qrcode Check List</h3><br><br>
+</div>
+<div class="text-center">
+  <img src="{% static 'pic/P1.JPG' %}" class="rounded" alt="nidec" width="200px" height="120px"><br><br>
+</div>
+<form method="post">
+    {% csrf_token %}
+  <div class="text-center">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" placeholder="Enter Username" size="50"><br><br>
+  </div>
+    <div class="text-center">
+      <label for="password">Password :</label>
+<!--      <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd" size="50">-->
+      <input type="password" id="password" placeholder="Enter password" name="password" size="50"><br><br>
+    </div>
+
+  <div class="text-center">
+       {% if error_message %}
+      <div class="alert alert-danger" role="alert">
+          {{ error_message }}
+      </div>
+      {% endif %}
+<!--    <button type="submit"  class="btn btn-primary btn-lg">Log In</button>-->
+      <button type="submit" class="btn btn-primary custom-button" >Login</button>
+<!--    <a class="btn btn-primary custom-button" href="/WebsmartunityQR" role="button">Login</a>-->
+    <a class="btn btn-primary custom-button" href="/WebsmartunityQR" role="button">Back</a>
+  </div>
+</form>
+
+

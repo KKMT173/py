@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% include 'header.html' %}
+    {% load static %}
+</head>
+<body>
+    <div class="container">
+        <div class="center-align">
+            <a>
+               <br><h4> User List </h4>
+            </a>
+            <a href="{% url 'adduser' %}" class="btn btn-link">
+               <br> <img src="{% static 'pic/add.jpg' %}" class="rounded image" alt="add" width="27px" height="27px">
+            </a>
+    </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th class="text-center">Edit/Delete User</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>User Type</th>
+                </tr>
+            </thead>
+            <tbody id="tr">
+                     {% for user in users %}
+                <tr>
+                    <td>{{ user.0 }}</td>
+                    <td class ="text-center">
+                        <a href="{% url 'useredit' user.0 %}" class="btn btn-link">
+                            <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
+                        </a>
+                        <a href="{% url 'userdelete' user.0 %}" class="btn btn-link" onclick="return confirm('ยืนยันการลบผู้ใช้งาน')">
+                            <img src="{% static 'pic/del.PNG' %}" class="rounded" alt="edit" width="25px" height="25px">
+                        </a>
+                    </td>
+                    <td>{{ user.1 }}</td>
+                    <td>{{ user.2 }}</td>
+                    <td>{{ user.5 }}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
