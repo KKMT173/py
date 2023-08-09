@@ -16,6 +16,7 @@
         }
         label.sub-label {
             margin-left: 24px; /* ระยะห่างของ sub label จากซ้าย */
+            font-size: 18px;
         }
         /* สไตล์สำหรับ label */
         label {
@@ -144,12 +145,6 @@
                 {% endfor %}
             </select>
             <br><br>
-            <label for="area">Area :</label>
-            <select id="area" name="area" required>
-                {% for area in areas %}
-                <option value="{{ area.id }}">{{ area.name }}</option>
-                {% endfor %}
-            </select>
 
             <label for="department">Department:</label>
             <select id="department" name="department" required>
@@ -157,19 +152,37 @@
                 <option value="{{ dept.id }}">{{ dept.name }}</option>
                 {% endfor %}
             </select>
+            <label for="area">Area :</label>
+                <select id="area" name="area" required>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}">{{ area.name }}</option>
+                    {% endfor %}
+                </select>
             <br><br>
 
             <div id="checkboxes">
                 <!-- Checkboxes will be populated here using JavaScript -->
             </div>
             <br>
-           <input type="submit" value="Generate QR Code" class="generate_qr_bปtn">
+           <input type="submit" value="Generate QR Code" class="generate_qr_btn">
            <script>
                 function confirmGenerateQRCode() {
                     return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
                 }
            </script>
         </form>
+        {% if duplicate_error %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    if ({{ duplicate_error|lower }}) {
+                        var shouldGenerate = confirm("Area ของแผนกนี้ได้ทำการสร้าง QR Code แล้ว คุณต้องการที่จะทำการสร้าง QR Code ใหม่หรือไม่?");
+                        if (!shouldGenerate) {
+                            // ไม่ต้องทำอะไรเพิ่ม
+                        }
+                    }
+                });
+            </script>
+        {% endif %}
         <br>
         {% if qr_code_path %}
         <h2>QR Code</h2>
@@ -202,8 +215,6 @@
 
         function createCheckboxWithLabel(value, labelText, isSubLabel) {
             const label = document.createElement("label");
-            label.innerHTML = labelText;
-            checkboxesContainer.appendChild(label);
 
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -211,6 +222,12 @@
             checkbox.value = value; // ใช้ตัวแปร value ที่ส่งมาจาก Django View เป็นค่า value ของ checkbox
             checkbox.dataset.originalValue = value; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
             label.appendChild(checkbox);
+
+            const textSpan = document.createElement("span");
+            textSpan.innerHTML = labelText;
+            label.appendChild(textSpan);
+
+            checkboxesContainer.appendChild(label);
 
             if (selectedType !== "1") {
                 const inputTextbox = document.createElement("input");
@@ -234,17 +251,29 @@
             }
         }
 
-        function createSubLabel(labelText) {
-            if (labelText) {
-                const label = document.createElement("label");
-                label.innerHTML = labelText;
-                label.classList.add("sub-label");
-                checkboxesContainer.appendChild(label);
-                // Add a line break after each sub-label
-                const br = document.createElement("br");
-                checkboxesContainer.appendChild(br);
-            }
+        function createSubLabelWithCheckbox(labelText, checkboxValue) {
+        if (labelText) {
+            const label = document.createElement("label");
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "checklist_item";
+            checkbox.value = checkboxValue; // ใช้ checkboxValue ที่ถูกส่งมาเป็นค่า value ของ checkbox
+            checkbox.dataset.originalValue = checkboxValue; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
+            label.appendChild(checkbox);
+
+            const textSpan = document.createElement("span");
+            textSpan.innerHTML = labelText;
+            label.appendChild(textSpan);
+
+            label.classList.add("sub-label");
+            checkboxesContainer.appendChild(label);
+
+            const br = document.createElement("br");
+            checkboxesContainer.appendChild(br);
         }
+    }
+
 
         checkListTypeSelect.addEventListener("change", function() {
             selectedType = checkListTypeSelect.value; // กำหนดค่า selectedType เมื่อผู้ใช้เลือกประเภท checklist
@@ -270,21 +299,10 @@
                             lastUnityName = item.unity_name;
                         }
 
-                        // Check if there's a detail_name and display it as a label with checkbox
-                        if (item.detail_name !== lastDetailName) {
+                        // Check if there's a detail_name and display it as a sub-label with checkbox
+                        if (selectedType === "1" && item.detail_name !== lastDetailName) {
                             lastDetailName = item.detail_name;
-                            if (selectedType === "1") {
-                                createCheckboxWithLabel(item.item_id, item.detail_name, true);
-                            } else {
-                                createSubLabel(item.detail_name);
-                            }
-                        }
-
-                        // Check if there's an un_sub_num and display it as sub-labels
-                        if (selectedType === "1" && item.un_sub_num && item.un_sub_num.length > 0) {
-                            item.un_sub_num.forEach(subItem => {
-                                createSubLabel(subItem);
-                            });
+                            createSubLabelWithCheckbox(item.detail_name, item.item_id); // สร้าง sub-label และ checkbox สำหรับ detail_name
                         }
                     });
                 })

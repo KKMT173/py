@@ -1,0 +1,42 @@
+
+<html>
+<head>
+    <title>List Unity Check List</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% include 'header.html' %}
+    {% load static %}
+</head>
+<body>
+    <div class="container">
+        <div class="center-align">
+            <a>
+               <br><h4> List Unity Check List </h4>
+            </a>
+    </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Department</th>
+                    <th>Area</th>
+                    <th>ชนิดแบบฟอร์ม</th>
+                    <th>วันที่</th>
+                </tr>
+            </thead>
+            <tbody id="tr">
+                     {% for listchecklist in listchecklists %}
+                <tr>
+                    <td>{{ listchecklist.0 }}</td>
+                    <td>{{ listchecklist.1 }}</td>
+                    <td>{{ listchecklist.2 }}</td>
+                    <td>{{ listchecklist.3 }}</td>
+                    <td>{{ listchecklist.4 }}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
