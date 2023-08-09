@@ -86,10 +86,6 @@ def userdelete(request, user_id):
         cursor.execute("DELETE FROM user_login WHERE id = %s", [user_id])
     return redirect('userlist')
 
-# def GenQr(request):
-#     template = loader.get_template('genqr.html')
-#     return HttpResponse(template.render())
-
 # def checklist_view(request):
 #     if request.method == 'POST':
 #         # ดึงรายการเช็คลิสต์ที่ถูกเลือกมาจาก request.POST
@@ -125,8 +121,21 @@ def generate_qr_code(request):
 
         # Save data to PostgreSQL
 
-        with connection.cursor() as cursor:
-            try:
+        try:
+            with connection.cursor() as cursor:
+                # Check for duplicate entry before inserting
+                cursor.execute(
+                    "SELECT id FROM unity_check_list WHERE id_area = %s AND id_department = %s AND id_ch_list_type = %s",
+                    [area, id_department, id_ch_li_type]
+                )
+                duplicate_entry = cursor.fetchone()
+
+                if duplicate_entry:
+                    return render(request, 'genqr.html',
+                                  {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
+                                   'check_list_types': get_unity_check_list_type()})
+
+                # No duplicate entry, proceed with insertion
                 cursor.execute(
                     "INSERT INTO unity_check_list (id_area, id_department, qr_code, id_ch_list_type, remark) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id",
                     [area, id_department, data, id_ch_li_type, ", ".join(selected_checkboxes)]
@@ -138,8 +147,12 @@ def generate_qr_code(request):
                         "INSERT INTO unity_check_list_detail (id_un_ch_list, check_list) VALUES (%s, %s)",
                         [unity_check_list_id, checkbox]
                     )
-            except Exception as e:
-                print("Error inserting data:", e)
+        except IntegrityError as e:
+            return render(request, 'genqr.html',
+                          {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
+                           'check_list_types': get_unity_check_list_type()})
+        except Exception as e:
+            print("Error inserting data:", e)
 
         # Save the QR code image to the desired location
         qr_code_filename = f"{data}.png"
@@ -229,9 +242,21 @@ def get_areas():
             areas.append(area)
     return areas
 
+def get_areas_by_department(request, department_id):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM area WHERE id_department = %s", [department_id])
+        areas = []
+        for row in cursor.fetchall():
+            area = {
+                'id': row[0],
+                'name': row[1]
+            }
+            areas.append(area)
+    return JsonResponse(areas, safe=False)
+
 def get_unity_check_list_type():
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM unity_check_list_type ")
+        cursor.execute("SELECT * FROM unity_check_list_type")
         check_list_types = []
         for row in cursor.fetchall():
             check_list_type = {
@@ -245,3 +270,26 @@ def logout_view(request):
     if 'username' in request.session:
         del request.session['username']
     return redirect('/login')
+
+def checklist_form(request):
+    if request.method == 'POST':
+        # Process the submitted form data here
+        pass
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM unity_check_list")
+            unity_checks = cursor.fetchall()
+
+            cursor.execute("SELECT * FROM unity_check_list_detail")
+            checklist_items = cursor.fetchall()
+
+    return render(request, 'checklist.html',{'unity_checks': unity_checks, 'checklist_items': checklist_items})
+
+def check_list_view(request):
+    # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+    with connection.cursor() as cursor:
+        cursor.execute("select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),unity_check_list.qr_code  from unity_check_list left outer join department on unity_check_list.id_department = department.id left outer join area on unity_check_list.id_area = area.id left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id ")
+        check_list_data = cursor.fetchall()
+        print(check_list_data)
+    return render(request, 'listchecklist.html', {'listchecklists': check_list_data})
+
