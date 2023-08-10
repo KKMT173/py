@@ -285,6 +285,59 @@ def checklist_form(request):
 
     return render(request, 'checklist.html',{'unity_checks': unity_checks, 'checklist_items': checklist_items})
 
+
+def get_checklist_data(query_type):
+    query = """
+        SELECT 
+            CAST(SPLIT_PART(ucld.check_list, '-', 1) AS INTEGER) AS type_check_list,
+            CAST(SPLIT_PART(ucld.check_list, '-', 2) AS INTEGER) AS header_check_list,
+            CASE WHEN SPLIT_PART(ucld.check_list, '-', 3) <> '' 
+                THEN SPLIT_PART(ucld.check_list, '-', 3)
+                ELSE NULL
+            END AS detail_check_list,
+            unity_item.unity_name,
+            unity_check_list_type.name_ch_type,
+    """
+
+    if query_type == 1:
+        query += """
+            unity_item_detail.detail_name,
+            unity_sub_item.un_sub_num
+        """
+    elif query_type == 2:
+        query += """
+            CASE WHEN SPLIT_PART(ucld.check_list, '-', 3) <> '' 
+                THEN SPLIT_PART(ucld.check_list, '-', 3)
+                ELSE NULL
+            END AS item_code,
+            unity_item_detail.detail_name
+        """
+
+    query += """
+        FROM unity_check_list_detail ucld
+        LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '-', 2) AS INTEGER)
+        LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '-', 1) AS INTEGER)
+    """
+
+    if query_type == 1:
+        query += """
+            LEFT OUTER JOIN unity_item_detail ON (CASE WHEN SPLIT_PART(ucld.check_list, '-', 3) ~ '^\d+$' 
+                                                     THEN unity_item_detail.id = CAST(SPLIT_PART(ucld.check_list, '-', 3) AS INTEGER)
+                                                     ELSE FALSE
+                                                 END)
+            LEFT OUTER JOIN unity_sub_item ON unity_item_detail.id = unity_sub_item.id_un_item_detail
+        """
+    elif query_type == 2:
+        query += """
+            LEFT OUTER JOIN unity_item_detail ON unity_item.id = unity_item_detail.id_unity_item
+        """
+
+    query += "WHERE CAST(SPLIT_PART(ucld.check_list, '-', 1) AS INTEGER) = %s;"
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, [query_type])
+        return cursor.fetchall()
+
 def check_list_view(request):
     # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
     with connection.cursor() as cursor:
