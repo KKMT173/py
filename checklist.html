@@ -1,7 +1,5 @@
-<!DOCTYPE html>
 <html>
 <head>
-    {% if request.session.id_user_type == 1 %}
     <meta charset="UTF-8">
     <title>Checklist Form</title>
     {% load static %}
@@ -11,37 +9,44 @@
 </head>
 <body>
     <h1>Checklist Form</h1>
-        <form method="post">
+    <form method="post">
         {% csrf_token %}
-        <label for="unity_check_id">Unity Check ID:</label>
-        <select id="unity_check_id" name="unity_check_id" required>
-            {% for unity_check in unity_checks %}
-                <option value="{{ unity_check.0 }}">{{ unity_check.0 }}</option>
-            {% endfor %}
-        </select>
+        <label>
+            Unity Check ID: {{ unity_check.0 }}
+        </label>
         <br><br>
 
+        {% if unity_check.3 == 1 %}
         <h2>Checklist Items:</h2>
         {% for item in checklist_items %}
+            <h3>{{ item.3 }}</h3> <!-- Unity Name -->
             <label>
-                <input type="checkbox" name="checklist_item" value="{{ item.2 }}">
-                {{ item.2 }}
+                <input type="checkbox" name="checklist_item" value="{{ item.6 }}">
+                {{ item.5 }} <!-- Detail Name -->
+            </label>
+            <br>
+            {% if item.7 %} <!-- Check if un_sub_num exists -->
+            <label>
+                <input type="checkbox" name="checklist_item_sub" value="{{ item.7 }}">
+                {{ item.7 }} <!-- un_sub_num -->
+            </label>
+            <br>
+            {% endif %}
+        {% endfor %}
+        {% elif unity_check.3 == 2 %}
+        <h2>Checklist Items:</h2>
+        {% for item in checklist_items %}
+            <h3>{{ item.3 }}</h3> <!-- Unity Name -->
+            <label>
+                <input type="checkbox" name="checklist_item" value="{{ item.4 }}">
+                {{ item.4 }} <!-- Detail Name -->
             </label>
             <br>
         {% endfor %}
+        {% endif %}
 
         <br>
         <input type="submit" value="Submit Checklist">
     </form>
 </body>
-{% else %}
-    <script>
-        // แสดง confirm box เมื่อหน้านี้ถูกเรียกใช้
-        window.onload = function () {
-            alert("คุณไม่มีสิทธิ์ในการเพิ่มผู้ใช้งาน");
-            window.history.back();
-        };
-    </script>
-{% endif %}
 </html>
-

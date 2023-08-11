@@ -57,7 +57,7 @@
                             const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
                             const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
 
-                            checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                            checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
 
                             // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
                             const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
@@ -68,7 +68,7 @@
                             const item_id2TextboxValue = item_id2Textbox.value;
                             checkboxes.forEach(checkbox => {
                                 if (checkbox.checked) {
-                                    checkbox.value = `${checkbox.dataset.originalValue}-${item_id2TextboxValue}`;
+                                    checkbox.value = `${checkbox.dataset.originalValue}!${item_id2TextboxValue}`;
                                 }
                             });
                         });
@@ -81,13 +81,13 @@
 
                     checkboxes.forEach(checkbox => {
                         const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
-                    const checkboxValueParts = checkbox.value.split("-"); // แยกค่า checkbox.value เป็นส่วนย่อยๆ
+                    const checkboxValueParts = checkbox.value.split("!"); // แยกค่า checkbox.value เป็นส่วนย่อยๆ
 
                     // ตรวจสอบว่าค่าเดิมและค่าใหม่ของ textbox เปลี่ยนแปลงหรือไม่
                         if (checkboxValueParts.length === 2) {
                             const oldValue = checkboxValueParts[1];
                             if (oldValue !== textboxValue) {
-                                checkbox.value = `${originalValue}-${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                                checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
                             }
                         }
                     });
@@ -113,7 +113,7 @@
                         const item_id2Textbox = document.getElementById("item_id2_textbox");
                         const checkboxes = document.getElementsByName("checklist_item");
                         checkboxes.forEach(checkbox => {
-                            checkbox.value = checkbox.dataset.originalValue + "-" + item_id2Textbox.value;
+                            checkbox.value = checkbox.dataset.originalValue + "!" + item_id2Textbox.value;
                         });
                     });
                 });
@@ -239,7 +239,7 @@
                 // Add event listener to update checkbox value when the textbox value changes
                 inputTextbox.addEventListener("input", function() {
                     // Update the checkbox value with the combined value
-                    checkbox.value = `${value}-${inputTextbox.value}`;
+                    checkbox.value = `${value}!${inputTextbox.value}`;
                 });
             }
 
