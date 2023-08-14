@@ -261,10 +261,15 @@ def logout_view(request):
     return redirect('/login')
 
 def checklist_form(request, id):
-
     if request.method == 'POST':
-        # Process the submitted form data here
-        pass
+        selected_checkboxes = request.POST.getlist('checklist_item_sub')  # Get selected checkboxes
+        if selected_checkboxes:
+            with connection.cursor() as cursor:
+                 for value in selected_checkboxes:
+                     # Insert each selected checkbox value into the database table
+                    cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)",
+                                     [value])
+        return redirect('check_list_view')
     else:
         checklist_items = []
         with connection.cursor() as cursor:
@@ -279,13 +284,15 @@ def checklist_form(request, id):
                         CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
                         CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
                         CASE 
-                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN SPLIT_PART(ucld.check_list, '!', 3)
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
                             ELSE NULL 
                         END AS detail_check_list,
+						unity_sub_item.id,
                         unity_item.unity_name, 
                         unity_check_list_type.name_ch_type, 
                         unity_item_detail.detail_name,
-                        unity_sub_item.un_sub_num 
+                        unity_sub_item.un_sub_num,
+                        CONCAT (id_un_ch_list,'!',ucld.check_list,'!',unity_sub_item.id,'!','1') 
                     FROM unity_check_list_detail ucld 
                     LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) 
                     LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) 
@@ -296,7 +303,9 @@ def checklist_form(request, id):
                         END
                     ) 
                     LEFT OUTER JOIN unity_sub_item ON unity_item_detail.id = unity_sub_item.id_un_item_detail 
-                    WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 1 AND id_un_ch_list = %s
+                    WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 1 AND id_un_ch_list = %s AND unity_item_detail.detail_name IS NOT NULL
+                    Order by 
+					header_check_list,detail_check_list,unity_sub_item.id 
                 """, [id])
                 checklist_items = cursor.fetchall()
 
@@ -312,7 +321,8 @@ def checklist_form(request, id):
                         END AS item_code,
                         unity_item.unity_name, 
                         unity_check_list_type.name_ch_type, 
-                        unity_item_detail.detail_name 
+                        unity_item_detail.detail_name,
+						CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',unity_item_detail.id,'!','1') 
                     FROM unity_check_list_detail ucld 
                     LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) 
                     LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) 
@@ -320,16 +330,12 @@ def checklist_form(request, id):
                     WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 2 AND id_un_ch_list = %s
                 """, [id])
                 checklist_items = cursor.fetchall()
-                print(checklist_items)
+                # print(checklist_items)
 
     return render(request, 'checklist.html', {'unity_check': unity_check, 'checklist_items': checklist_items})
 
-
-
-
-
 def check_list_view(request):
-    # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+    # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูล
     with connection.cursor() as cursor:
         cursor.execute("select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),unity_check_list.qr_code  from unity_check_list left outer join department on unity_check_list.id_department = department.id left outer join area on unity_check_list.id_area = area.id left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id ")
         check_list_data = cursor.fetchall()
