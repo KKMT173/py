@@ -9,44 +9,67 @@
 </head>
 <body>
     <h1>Checklist Form</h1>
-    <form method="post">
+    <form method="post" onsubmit="logSelectedCheckboxes()">
         {% csrf_token %}
         <label>
-            Unity Check ID: {{ unity_check.0 }}
+            {{ unity_check.4 }}
+            <br>
+            {{ unity_check.1 }} {{ unity_check.2 }}
         </label>
         <br><br>
 
-        {% if unity_check.3 == 1 %}
+       {% if unity_check.3 == 1 %}
         <h2>Checklist Items:</h2>
-        {% for item in checklist_items %}
-            <h3>{{ item.3 }}</h3> <!-- Unity Name -->
-            <label>
-                <input type="checkbox" name="checklist_item" value="{{ item.6 }}">
-                {{ item.5 }} <!-- Detail Name -->
-            </label>
-            <br>
-            {% if item.7 %} <!-- Check if un_sub_num exists -->
-            <label>
-                <input type="checkbox" name="checklist_item_sub" value="{{ item.7 }}">
-                {{ item.7 }} <!-- un_sub_num -->
-            </label>
-            <br>
-            {% endif %}
-        {% endfor %}
-        {% elif unity_check.3 == 2 %}
-        <h2>Checklist Items:</h2>
-        {% for item in checklist_items %}
-            <h3>{{ item.3 }}</h3> <!-- Unity Name -->
-            <label>
-                <input type="checkbox" name="checklist_item" value="{{ item.4 }}">
-                {{ item.4 }} <!-- Detail Name -->
-            </label>
-            <br>
-        {% endfor %}
-        {% endif %}
+        <br>
+            {% for item in checklist_items %}
+                {% ifchanged item.4 %}
+                    <h3>{{ item.4 }} </h3>
+                 <!-- Unity Name - Display only once -->
+                {% endifchanged %}
+                    {% ifchanged item.6 %}
+                        <h4>{{ item.6 }}</h4>
+                        <!-- Detail Name - Display only once per change -->
+                    {% endifchanged %}
+                        <label>
+                            <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
+                            {{ item.7 }} <!-- un_sub_num -->
+                        </label>
+                            <br>
+            {% endfor %}
 
+        {% elif unity_check.3 == 2 %}
+            <h2>Checklist Items:</h2>
+            {% for item in checklist_items %}
+                {% ifchanged item.3 %}
+                    <br>
+                    <h3>{{ item.3 }} รหัสเลขที่ :{{ item.2 }}</h3> <!-- Unity Name - Display only once -->
+                {% endifchanged %} <!-- Unity Name -->
+                    <label>
+                    <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
+                    {{ item.5 }} <!-- Detail Name -->
+                    </label>
+                <br>
+            {% endfor %}
+        {% endif %}
+        <input type="hidden" id="selected_checkboxes" name="selected_checkboxes" value="">
         <br>
         <input type="submit" value="Submit Checklist">
     </form>
+
+    <script>
+        function logSelectedCheckboxes() {
+            var checkboxes = document.getElementsByName('checklist_item_sub');
+            var selectedCheckboxes = [];
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    selectedCheckboxes.push(checkboxes[i].value);
+                }
+            }
+            console.log('Selected Checkboxes:', selectedCheckboxes);
+
+            // Set the selected checkboxes to a hidden input field in the form
+            document.getElementById('selected_checkboxes').value = selectedCheckboxes.join(',');
+        }
+    </script>
 </body>
 </html>
