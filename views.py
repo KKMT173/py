@@ -95,7 +95,7 @@ def generate_qr_code(request):
 
         # Combine item_code and id_department into a single string
         data = f"{area}, {id_department}, {id_ch_li_type} "
-        data += ", ".join(selected_checkboxes)
+        # data += ", ".join(selected_checkboxes)
 
         # Generate QR code
         qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
@@ -339,6 +339,86 @@ def check_list_view(request):
     with connection.cursor() as cursor:
         cursor.execute("select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),unity_check_list.qr_code  from unity_check_list left outer join department on unity_check_list.id_department = department.id left outer join area on unity_check_list.id_area = area.id left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id ")
         check_list_data = cursor.fetchall()
-        print(check_list_data)
+        # print(check_list_data)
     return render(request, 'listchecklist.html', {'listchecklists': check_list_data})
 
+def checklist_report(request, id):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate), unity_check_list.qr_code FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
+            [id])
+        unity_check = cursor.fetchone()
+
+        cursor.execute("""
+                SELECT
+                    ucl.id,
+                    ucld.id,
+                    CAST(SPLIT_PART(uclc.value, '!', 3) AS INTEGER) AS Head,
+                    CAST(SPLIT_PART(uclc.value, '!', 4) AS INTEGER) AS Subhead,
+                    CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) AS LineDetail,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 1 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck1,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 2 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck2,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 3 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck3,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 4 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck4,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 5 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck5,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 6 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck6,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 7 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck7,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 8 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck8,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 9 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck9,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 10 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck10,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 11 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck11,
+                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 12 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck12,
+                    ucld.check_list,
+                    uclc.value,
+                    CASE 
+                    WHEN SPLIT_PART(ucld.check_list, '!', 3) <> ''
+                    THEN 
+                        CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
+                                            ELSE NULL 
+                                        END AS detail_check_list,
+                    ucld.id,
+                    CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) AS valuecheck
+                FROM unity_check_list ucl
+                LEFT OUTER JOIN unity_check_list_detail ucld ON ucl.id = ucld.id_un_ch_list
+                LEFT OUTER JOIN unity_check_list_content uclc ON ucl.id = CAST(SPLIT_PART(uclc.value, '!', 1) AS INTEGER) 
+                and  (CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) = CAST(SPLIT_PART(uclc.value, '!', 3) AS INTEGER) and  (CASE 
+                                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
+                                            ELSE NULL 
+                                        END) = CAST(SPLIT_PART(uclc.value, '!', 4) AS INTEGER))
+                WHERE (CASE 
+                        WHEN SPLIT_PART(ucld.check_list, '!', 3) <> ''
+                        THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
+                        ELSE NULL 
+                    END) IS NOT NULL and ucl.id = %s 
+                GROUP BY ucl.id, ucld.id,uclc.value,ucld.check_list, Head, Subhead, LineDetail,detail_check_list
+                order by
+                ucld.id,detail_check_list,
+                LineDetail
+        """, [id])
+
+        rows = cursor.fetchall()
+
+        # Process the rows and format the data as needed
+        report_data = []
+
+        for row in rows:
+                report_data.append({
+                'id': row[0],
+                'value': row[1],
+                'Head': row[2],
+                'subhead': row[3],
+                'LineDetail': row[4],
+                'valuecheck1': row[5],
+                'valuecheck2': row[6],
+                'valuecheck3': row[7],
+                'valuecheck4': row[8],
+                'valuecheck5': row[9],
+                'valuecheck6': row[10],
+                'valuecheck7': row[11],
+                'valuecheck8': row[12],
+                'valuecheck9': row[13],
+                'valuecheck10': row[14],
+                'valuecheck11': row[15],
+                'valuecheck12': row[16],
+            })
+        return render(request, 'checklistreport.html', {'report_data': report_data , 'unity_check':unity_check})
