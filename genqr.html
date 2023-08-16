@@ -35,7 +35,7 @@
 
 </head>
 <body>
-    <div class="container text-center">
+    <div class="container">
           <script>
             let checkboxesContainer; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ checkboxesContainer
             let item_id2Textbox; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ textbox
@@ -138,7 +138,7 @@
         <h1>QR Code Checklist</h1><br>
         <form method="post" action="{% url 'generate_qr_code' %}" onsubmit="return confirmGenerateQRCode()">
             {% csrf_token %}
-            <label for="check_list_type">Check_list_type</label>
+            <label for="check_list_type">Check_list_type :</label>
             <select id="check_list_type" name="check_list_type" required>
                 {% for list_type in check_list_types %}
                 <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>
@@ -146,13 +146,13 @@
             </select>
             <br><br>
 
-            <label for="department">Department:</label>
+            <label for="department">Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</label>
             <select id="department" name="department" required>
                 {% for dept in departments %}
                 <option value="{{ dept.id }}">{{ dept.name }}</option>
                 {% endfor %}
             </select>
-            <label for="area">Area :</label>
+            <label for="area">&nbsp;&nbsp;&nbsp;Area :</label>
                 <select id="area" name="area" required>
                     {% for area in areas %}
                     <option value="{{ area.id }}">{{ area.name }}</option>
@@ -171,7 +171,7 @@
                 }
            </script>
         </form>
-        {% if duplicate_error %}
+      {% if duplicate_error %}
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     if ({{ duplicate_error|lower }}) {

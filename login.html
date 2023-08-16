@@ -7,16 +7,6 @@
   {% bootstrap_css %}
   {% bootstrap_javascript %}
   {% load static %}
-  <style>
-    .custom-button {
-      width: 150px;
-      height: 40px;
-    }
-    .login_bth {
-      width: 150px;
-      height: 40px;
-    }
-  </style>
 </head>
 
 <div class="text-center">
@@ -25,7 +15,7 @@
 <div class="text-center">
   <img src="{% static 'pic/P1.JPG' %}" class="rounded" alt="nidec" width="200px" height="120px"><br><br>
 </div>
-<form method="post">
+<form class= form-signin method="post">
     {% csrf_token %}
   <div class="text-center">
       <label for="username">Username:</label>
@@ -46,8 +36,23 @@
 <!--    <button type="submit"  class="btn btn-primary btn-lg">Log In</button>-->
       <button type="submit" class="btn btn-primary custom-button" >Login</button>
 <!--    <a class="btn btn-primary custom-button" href="/WebsmartunityQR" role="button">Login</a>-->
-    <a class="btn btn-primary custom-button" href="/WebsmartunityQR" role="button">Back</a>
+<!--    <a class="btn btn-primary custom-button" href="/WebsmartunityQR" role="button">Back</a>-->
   </div>
 </form>
+</html>
 
+<style>
+html,
+body {
+      height: 100%;
+}
 
+.custom-button {
+      width: 150px;
+      height: 40px;
+}
+    .login_bth {
+      width: 150px;
+      height: 40px;
+    }
+</style>

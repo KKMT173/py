@@ -24,6 +24,7 @@
                     <th>ชนิดแบบฟอร์ม</th>
                     <th>วันที่</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="tr">
@@ -39,8 +40,13 @@
                     <td>{{ listchecklist.2 }}</td>
                     <td>{{ listchecklist.3 }}</td>
                     <td>{{ listchecklist.4 }}</td>
-                    <<td>
+                    <td>
                         <a href="{% url 'checklist_form' listchecklist.0 %}" class="btn btn-link">
+                            <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'checklist_report' listchecklist.0 %}" class="btn btn-link">
                             <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
                         </a>
                     </td>

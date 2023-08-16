@@ -23,15 +23,15 @@
         <br>
             {% for item in checklist_items %}
                 {% ifchanged item.4 %}
-                    <h3>{{ item.4 }} </h3>
+                    <h3>&nbsp;&nbsp;{{ item.4 }} </h3>
                  <!-- Unity Name - Display only once -->
                 {% endifchanged %}
                     {% ifchanged item.6 %}
-                        <h4>{{ item.6 }}</h4>
+                        <h4> &nbsp;&nbsp;&nbsp;&nbsp;{{ item.6 }}</h4>
                         <!-- Detail Name - Display only once per change -->
                     {% endifchanged %}
                         <label>
-                            <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
+                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
                             {{ item.7 }} <!-- un_sub_num -->
                         </label>
                             <br>
@@ -45,7 +45,7 @@
                     <h3>{{ item.3 }} รหัสเลขที่ :{{ item.2 }}</h3> <!-- Unity Name - Display only once -->
                 {% endifchanged %} <!-- Unity Name -->
                     <label>
-                    <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
+                   &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
                     {{ item.5 }} <!-- Detail Name -->
                     </label>
                 <br>
