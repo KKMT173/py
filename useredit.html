@@ -8,18 +8,20 @@
     {% load static %}
 </head>
 <body>
-    <div class="container">
-        <h1>Edit User</h1>
+    <div class="text-center">
+       <br> <h1>แก้ไขข้อมูลผู้ใช้งาน</h1><br>
+    </div>
         <form method="post">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="text-center">
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" class="form-control" value="{{ user.1 }}">
+                <input type="text" id="username" name="username" value="{{ user.1 }}"><br><br>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="text" id="password" name="password" class="form-control" value="{{ user.2 }}">
+            <div class="text-center">
+                <label for="password">Password:&nbsp;</label>
+                <input type="text" id="password" name="password"  value="{{ user.2 }}"><br><br>
             </div>
+            <br>
             <div class="text-center">
                 <label for="user_type">User Type:</label>
                 <select id="user_type" name="user_type"  required>
@@ -27,10 +29,9 @@
                         <option value="{{ user_type.0 }}">{{ user_type.1 }}</option>
                     {% endfor %}
                 </select>
+                <br><br><button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% url 'userlist' %}" class="btn btn-secondary">Cancel</a>
             </div>
-            <br><button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'userlist' %}" class="btn btn-secondary">Cancel</a>
         </form>
-    </div>
 </body>
 </html>

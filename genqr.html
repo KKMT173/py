@@ -138,7 +138,7 @@
         <h1>QR Code Checklist</h1><br>
         <form method="post" action="{% url 'generate_qr_code' %}" onsubmit="return confirmGenerateQRCode()">
             {% csrf_token %}
-            <label for="check_list_type">Check_list_type :</label>
+            <label for="check_list_type">ประเภทแบบฟอร์ม :</label>
             <select id="check_list_type" name="check_list_type" required>
                 {% for list_type in check_list_types %}
                 <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>
