@@ -1,32 +1,29 @@
 
 <html>
+<head>
+    <title>Checklist Report</title>
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% include 'header.html' %}
     {% load static %}
-<head>
-    <title>Checklist Report</title>
 </head>
-
 <body>
     <br>
     <h1>Checklist Report</h1>
     <br>
      <label>
             {{ unity_check.4 }}
-            <br>
-            {{ unity_check.1 }} {{ unity_check.2 }}
+            <br><br>
+            Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
         </label>
         <br><br>
-
+    {% if unity_check.3 == 1 %}
     <table class="table">
          <thead>
                 <tr>
-                    <th>Value</th>
-                    <th>Number</th>
-                    <th>Header</th>
-                    <th>Subheader</th>
-                    <th>Line Detail</th>
+                    <th>หมวด</th>
+                    <th>เรื่อง</th>
+                    <th>รายละเอียด</th>
                     <th>Jan</th>
                     <th>Feb</th>
                     <th>Mar</th>
@@ -41,13 +38,19 @@
                     <th>Dec</th>
                 </tr>
          </thead>
-        <tbody id="tr">
+        <tbody id="tr1">
             {% for item in report_data %}
             <tr>
-                <td>{{ item.value }}</td>
-                <td>{{ item.id }}</td>
-                <td>{{ item.Head }}</td>
-                <td>{{ item.subhead }}</td>
+                <td>
+                    {% ifchanged item.Head %}
+                        {{ item.Head }}
+                    {% endifchanged %}
+                </td>
+                <td>
+                    {% ifchanged item.subhead %}
+                        {{ item.subhead }}
+                    {% endifchanged %}
+                </td>
                 <td>{{ item.LineDetail }}</td>
                 <td>{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
                 <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
@@ -66,7 +69,61 @@
             {% endfor %}
         </tbody>
     </table>
-
+    {% elif unity_check.3 == 2 %}
+    <table class="table">
+             <thead>
+                    <tr>
+                        <th>ชื่ออุปกรณ์</th>
+                        <th>รายละเอียดการเช็ค</th>
+                        <th>รหัสอุปกรณ์</th>
+                        <th>Jan</th>
+                        <th>Feb</th>
+                        <th>Mar</th>
+                        <th>Apr</th>
+                        <th>May</th>
+                        <th>Jun</th>
+                        <th>Jul</th>
+                        <th>Aug</th>
+                        <th>Sep</th>
+                        <th>Oct</th>
+                        <th>Nov</th>
+                        <th>Dec</th>
+                    </tr>
+             </thead>
+            <tbody id="tr2">
+                {% for item in report_data %}
+                <tr>
+                    <td>
+                        {% ifchanged item.Head %}
+                            {{ item.Head }}
+                        {% endifchanged %}
+                    </td>
+                    <td>{{ item.subhead }}</td>
+                    <td>
+                        {% ifchanged item.LineDetail %}
+                            {% if item.LineDetail %}
+                                {{ item.LineDetail }}
+                            {% endif %}
+                        {% endifchanged %}
+                    </td>
+                    <td>{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck6 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck7 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck8 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck9 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck10 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck11 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <td>{% if item.valuecheck12 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                    <!-- เพิ่มคอลัมน์สำหรับ Value 3 ถึง Value 12 ตามต้องการ -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </body>
 
 </html>

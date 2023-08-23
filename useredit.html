@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {% if request.session.id_user_type == 1 %}
     <title>Edit User</title>
     {% load bootstrap5 %}
     {% bootstrap_css %}
@@ -34,4 +35,13 @@
             </div>
         </form>
 </body>
+{% else %}
+    <script>
+        // แสดง confirm box เมื่อหน้านี้ถูกเรียกใช้
+        window.onload = function () {
+            alert("คุณไม่มีสิทธิ์ในการแก้ไขผู้ใช้งาน");
+            window.history.back();
+        };
+    </script>
+{% endif %}
 </html>

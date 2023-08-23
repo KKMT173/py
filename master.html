@@ -1,13 +1,105 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Main Page</title>
+    {% include 'header.html' %}
+    {% load static %}
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        .donut-container {
+            background-color:#ffffff; /* Set background color for the container */
+            padding: 10px; /* Add padding for spacing */
+        }
+
+        .donut-chart {
+            background-color: #E8FFED; /* Set background color for the individual chart div */
+            padding: 20px; /* Add padding for spacing */
+            margin-bottom: 20px; /* Add margin for spacing */
+            border-radius: 20px;
+        }
+    </style>
 </head>
 <body>
-    {% include 'header.html' %}
-</body>
-</div>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="donut-container">
+                        <div class="donut-text">
+                            แบบตรวจการประเมินสภาพแวดล้อมด้านอาชีวอนามัยและความปลอดภัยในการทำงาน
+                        </div>
+                        <div class="donut-chart">
+                            <canvas id="donutChart1"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="donut-container">
+                        <div class="donut-text">
+                            แบบตรวจเช็คอุปกรณ์ป้องกันและระงับอัคคีภัย
+                        </div>
+                        <div class="donut-chart">
+                            <canvas id="donutChart2"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="donut-container">
+                        <div class="donut-text">
+                            แบบบันทึกการตรวจสอบถังดับเพลิง(ประจำ3เดือน)
+                        </div>
+                        <div class="donut-chart">
+                            <canvas id="donutChart3"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="donut-container">
+                        <div class="donut-text">
+                            แบบบันทึกการตรวจสอบถังดับเพลิง(ประจำ3เดือน)
+                        </div>
+                        <div class="donut-chart">
+                            <canvas id="donutChart4"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>
+        // Get the data from Django view and render donut charts
+        var donutChartData = JSON.parse('{{ pie_chart_data | safe }}');
+        renderDonutChart('donutChart1', donutChartData[0].green, donutChartData[0].yellow, donutChartData[0].red);
+        renderDonutChart('donutChart2', donutChartData[1].green, donutChartData[1].yellow, donutChartData[1].red);
+        renderDonutChart('donutChart3', donutChartData[2].green, donutChartData[2].yellow, donutChartData[2].red);
+        renderDonutChart('donutChart4', donutChartData[3].green, donutChartData[3].yellow, donutChartData[3].red);
+
+        function renderDonutChart(canvasId, greenCount, yellowCount, redCount) {
+            var ctx = document.getElementById(canvasId);
+            if (ctx) { // Check if the canvas element exists
+                ctx = ctx.getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut', // Set chart type to doughnut
+                    data: {
+                        labels: ['ทำการตรวจสอบในรอบที่กำหนด', 'อยู่ระวางรอบที่กำหนด', 'เกินรอบที่กำหนด'],
+                        datasets: [{
+                            data: [greenCount, yellowCount, redCount],
+                            backgroundColor: ['#00FF00', '#FFFF00', '#FF0000'],
+                            hoverBackgroundColor: ['#00FF00', '#FFFF00', '#FF0000'],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%', // Adjust the cutout percentage to control the donut size
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,11 +1,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <title>QR Code Checklist</title>
     {% load static %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
-    {% include 'master.html' %}
-    <title>QR Code Checklist</title>
+    {% include 'header.html' %}
+
 
     <style>
         /* สไตล์สำหรับ checkbox */
@@ -96,6 +97,7 @@
 
 
                     // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
+
                     document.querySelector("form").addEventListener("submit", function(event) {
                         // ตรวจสอบว่ามี checkbox ที่ถูกเลือกอย่างน้อยหนึ่งช่องหรือไม่
                         const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
@@ -136,7 +138,7 @@
         </script>
         <br>
         <h1>QR Code Checklist</h1><br>
-        <form method="post" action="{% url 'generate_qr_code' %}" onsubmit="return confirmGenerateQRCode()">
+        <form method="post" action="{% url 'generate_qr_code' %}" >
             {% csrf_token %}
             <label for="check_list_type">ประเภทแบบฟอร์ม :</label>
             <select id="check_list_type" name="check_list_type" required>
@@ -164,21 +166,21 @@
                 <!-- Checkboxes will be populated here using JavaScript -->
             </div>
             <br>
-           <input type="submit" value="Generate QR Code" class="generate_qr_btn">
+           <input type="submit" value="Generate QR Code" class="generate_qr_btn" id="generate_qr_btn" onclick="return confirmGenerateQRCode(event)">
            <script>
-                function confirmGenerateQRCode() {
-                    return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
+                function confirmGenerateQRCode(event) {
+                    if (event.target.id === 'generate_qr_btn') {
+                        return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
+                    }
                 }
            </script>
         </form>
       {% if duplicate_error %}
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    if ({{ duplicate_error|lower }}) {
-                        var shouldGenerate = confirm("Area ของแผนกนี้ได้ทำการสร้าง QR Code แล้ว คุณต้องการที่จะทำการสร้าง QR Code ใหม่หรือไม่?");
-                        if (!shouldGenerate) {
-                            // ไม่ต้องทำอะไรเพิ่ม
-                        }
+                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้ทำการสร้าง QR Code แล้ว คุณต้องการที่จะทำการสร้าง QR Code ใหม่หรือไม่?");
+                    if (!shouldGenerate) {
+                        // ไม่ต้องทำอะไรเพิ่ม
                     }
                 });
             </script>
@@ -214,42 +216,63 @@
         let selectedType = "";
 
         function createCheckboxWithLabel(value, labelText, isSubLabel) {
-            const label = document.createElement("label");
+          const label = document.createElement("label");
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.name = "checklist_item";
-            checkbox.value = value; // ใช้ตัวแปร value ที่ส่งมาจาก Django View เป็นค่า value ของ checkbox
-            checkbox.dataset.originalValue = value; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
-            label.appendChild(checkbox);
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.name = "checklist_item";
+          checkbox.value = value; // ใช้ตัวแปร value ที่ส่งมาจาก Django View เป็นค่า value ของ checkbox
+          checkbox.dataset.originalValue = value; // เก็บค่าเดิมของ checkbox ไว้ใน dataset.originalValue
+          label.appendChild(checkbox);
 
-            const textSpan = document.createElement("span");
-            textSpan.innerHTML = labelText;
-            label.appendChild(textSpan);
+          const textSpan = document.createElement("span");
+          textSpan.innerHTML = labelText;
+          label.appendChild(textSpan);
 
-            checkboxesContainer.appendChild(label);
 
             if (selectedType !== "1") {
-                const inputTextbox = document.createElement("input");
-                inputTextbox.type = "text";
-                inputTextbox.name = "textbox_item";
-                inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
-                label.appendChild(inputTextbox);
-
                 // Add event listener to update checkbox value when the textbox value changes
-                inputTextbox.addEventListener("input", function() {
+                const inputTextbox = label.querySelector("input[name='textbox_item']");
+                inputTextbox.addEventListener("input", function () {
                     // Update the checkbox value with the combined value
                     checkbox.value = `${value}!${inputTextbox.value}`;
                 });
+
+                // Add a button to duplicate the checkbox and textbox
+                const duplicateButton = document.createElement("button");
+                duplicateButton.type = "button"; // เปลี่ยน type เป็น "button"
+                duplicateButton.innerText = "เพิ่ม";
+                duplicateButton.addEventListener("click", function () {
+                    const clonedLabel = label.cloneNode(true); // คลอน label และเนื้อหาภายใน
+                    const clonedTextbox = clonedLabel.querySelector("input[name='textbox_item']");
+                    clonedTextbox.value = ""; // รีเซ็ตค่าของ textbox ใน label ใหม่ที่คัดลอก
+                    clonedLabel.removeChild(clonedLabel.querySelector("button")); // ลบปุ่ม "เพิ่ม" ออกจากตัวคลอน
+                    checkboxesContainer.appendChild(clonedLabel);
+                    setupTextboxEvent(clonedTextbox); // เพิ่ม event listener ใหม่ให้กับ textbox ใน label ใหม่
+                });
+                label.appendChild(duplicateButton);
             }
 
-            // ตรวจสอบว่ามี <br> ก่อนหน้านี้หรือไม่
-            const lastElement = checkboxesContainer.lastChild;
-            if (!(lastElement instanceof HTMLBRElement)) {
-                const br = document.createElement("br");
-                checkboxesContainer.appendChild(br);
-            }
-        }
+
+          // ตรวจสอบว่ามี <br> ก่อนหน้านี้หรือไม่
+          const lastElement = checkboxesContainer.lastChild;
+          if (!(lastElement instanceof HTMLBRElement)) {
+              const br = document.createElement("br");
+              checkboxesContainer.appendChild(br);
+          }
+      }
+
+      function setupTextboxEvent(textbox) {
+          // Add event listener to update checkbox value when the textbox value changes
+          const label = textbox.closest("label");
+          const checkbox = label.querySelector("input[name='checklist_item']");
+          const value = checkbox.dataset.originalValue;
+
+          textbox.addEventListener("input", function () {
+              // Update the checkbox value with the combined value
+              checkbox.value = `${value}!${textbox.value}`;
+          });
+      }
 
         function createSubLabelWithCheckbox(labelText, checkboxValue) {
         if (labelText) {
