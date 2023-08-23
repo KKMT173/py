@@ -7,6 +7,7 @@ from io import BytesIO
 from django.http import HttpResponse,JsonResponse
 from django.db import connection,IntegrityError
 from django import template
+import json
 
 def login_view(request):
     if request.method == 'POST':
@@ -26,17 +27,133 @@ def login_view(request):
             return render(request, 'login.html', {'error_message': error_message})
     return render(request, 'login.html')
 
+# def WebsmartunityQR(request):
+# #     # เช็คว่าผู้ใช้เข้าสู่ระบบแล้วหรือไม่ หากยังไม่ได้เข้าสู่ระบบให้เปลี่ยนเป็นการ redirect ไปหน้าเข้าสู่ระบบ
+# #     # if not request.user.is_authenticated:
+# #     #     return redirect('login')  # ให้เปลี่ยนเป็นชื่อ URL pattern ของหน้า login ที่คุณต้องการ
+# #     template = loader.get_template('master.html')
+# #     context = {
+# #         # 'firstname': 'mintorn',
+# #         # 'nickname': 'KK',
+# #         'username': request.session['username']
+# #     }
+# #     return HttpResponse(template.render(context, request))
+
 def WebsmartunityQR(request):
-    # เช็คว่าผู้ใช้เข้าสู่ระบบแล้วหรือไม่ หากยังไม่ได้เข้าสู่ระบบให้เปลี่ยนเป็นการ redirect ไปหน้าเข้าสู่ระบบ
-    # if not request.user.is_authenticated:
-    #     return redirect('login')  # ให้เปลี่ยนเป็นชื่อ URL pattern ของหน้า login ที่คุณต้องการ
-    template = loader.get_template('master.html')
+    # Execute SQL queries to get data
+    with connection.cursor() as cursor:
+        cursor.execute("""select distinct
+                                (SELECT COUNT(*)
+                                 FROM unity_check_list
+                                 WHERE 
+                                    status = 3  
+                                    AND id_ch_list_type = 1  
+                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+                                 ),
+                                (SELECT COUNT(*)
+                                 FROM unity_check_list
+                                 WHERE 
+                                    status <> 3 
+                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
+                                    AND id_ch_list_type = 1 
+                                 ),
+                                (SELECT COUNT(*)
+                                FROM unity_check_list
+                                WHERE 
+                                    EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
+                                    AND id_ch_list_type = 1 
+                                )
+                            from
+                            unity_check_list""")
+        data1 = cursor.fetchone()
+        cursor.execute("""select distinct
+                                (SELECT COUNT(*)
+                                 FROM unity_check_list
+                                 WHERE 
+                                    status = 3  
+                                    AND id_ch_list_type = 2  
+                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+                                 ),
+                                (SELECT COUNT(*)
+                                 FROM unity_check_list
+                                 WHERE 
+                                    status <> 3 
+                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
+                                    AND id_ch_list_type = 2 
+                                 ),
+                                (SELECT COUNT(*)
+                                FROM unity_check_list
+                                WHERE 
+                                    EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
+                                    AND id_ch_list_type = 2 
+                                )
+                            from
+                            unity_check_list""")
+        data2 = cursor.fetchone()
+        cursor.execute("""select distinct
+                            (SELECT COUNT(*)
+                             FROM unity_check_list
+                             WHERE 
+                                status = 3  
+                                AND id_ch_list_type = 3  
+                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+                             ),
+                            (SELECT COUNT(*)
+                             FROM unity_check_list
+                             WHERE 
+                                status <> 3 
+                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
+                                AND id_ch_list_type = 3 
+                             ),
+                            (SELECT COUNT(*)
+                            FROM unity_check_list
+                            WHERE 
+                                EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
+                                AND id_ch_list_type = 3 
+                            )
+                        from
+                        unity_check_list
+                        """)
+        data3 = cursor.fetchone()
+        cursor.execute("""select distinct
+                            (SELECT COUNT(*)
+                             FROM unity_check_list
+                             WHERE 
+                                status = 3  
+                                AND id_ch_list_type = 4  
+                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+                             ),
+                            (SELECT COUNT(*)
+                             FROM unity_check_list
+                             WHERE 
+                                status <> 3 
+                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
+                                AND id_ch_list_type = 4 
+                            ),
+                            (SELECT COUNT(*)
+                            FROM unity_check_list
+                            WHERE 
+                                EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
+                                AND id_ch_list_type = 4 
+                            )
+                        from
+                        unity_check_list""")
+        data4 = cursor.fetchone()
+
+    # Prepare data for rendering in JavaScript
+    pie_chart_data = [
+        {"green": data1[0], "yellow": data1[1], "red": data1[2]},
+        {"green": data2[0], "yellow": data2[1], "red": data2[2]},
+        {"green": data3[0], "yellow": data3[1], "red": data3[2]},
+        {"green": data4[0], "yellow": data4[1], "red": data4[2]},
+    ]
+
     context = {
-        # 'firstname': 'mintorn',
-        # 'nickname': 'KK',
+        'pie_chart_data': json.dumps(pie_chart_data),
         'username': request.session['username']
     }
-    return HttpResponse(template.render(context, request))
+
+    return render(request, 'master.html', context)
 
 def add_user(request):
 
@@ -348,77 +465,153 @@ def checklist_report(request, id):
             "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate), unity_check_list.qr_code FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
             [id])
         unity_check = cursor.fetchone()
+        if unity_check[3] == 1:
+            cursor.execute("""
+                SELECT 
+						ucld.check_list,
+						uclc.value,
+                        CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                        CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
+                            ELSE NULL 
+                        END AS detail_check_list,
+						unity_sub_item.id,
+                        unity_item.unity_name, 
+                        unity_item_detail.detail_name,
+                        unity_sub_item.un_sub_num,
+                        CONCAT (id_un_ch_list,'!',ucld.check_list,'!',unity_sub_item.id,'!','1'),
+						CAST(SPLIT_PART(uclc.value, '!', 3) AS INTEGER) AS Head,
+						CAST(SPLIT_PART(uclc.value, '!', 4) AS INTEGER) AS Subhead,
+						CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) AS LineDetail,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 1 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck1,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 2 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck2,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 3 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck3,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 4 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck4,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 5 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck5,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 6 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck6,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 7 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck7,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 8 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck8,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 9 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck9,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 10 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck10,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 11 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck11,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 12 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck12
+                    
+					 FROM unity_check_list ucl
+                	LEFT OUTER JOIN unity_check_list_detail ucld ON ucl.id = ucld.id_un_ch_list
+                    LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) 
+                    LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) 
+                    LEFT OUTER JOIN unity_item_detail ON (
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) ~ '^\d+$' THEN unity_item_detail.id = CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER) 
+                            ELSE FALSE 
+                        END
+                    ) 
+                    LEFT OUTER JOIN unity_sub_item ON unity_item_detail.id = unity_sub_item.id_un_item_detail 
+                    LEFT OUTER JOIN unity_check_list_content  uclc ON CONCAT (id_un_ch_list,'!',ucld.check_list,'!',unity_sub_item.id,'!','1') = uclc.value
+					WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 1 AND id_un_ch_list = %s AND unity_item_detail.detail_name IS NOT NULL
+                    GROUP BY ucld.check_list,
+						uclc.value,unity_item.id, ucld.id,uclc.value,ucld.check_list, Head, Subhead, LineDetail,detail_check_list,ucld.check_list,unity_sub_item.id,unity_item_detail.detail_name
+					Order by 
+					header_check_list,detail_check_list,unity_sub_item.id 
+                """, [id])
 
-        cursor.execute("""
-                SELECT
-                    ucl.id,
-                    ucld.id,
-                    CAST(SPLIT_PART(uclc.value, '!', 3) AS INTEGER) AS Head,
-                    CAST(SPLIT_PART(uclc.value, '!', 4) AS INTEGER) AS Subhead,
-                    CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) AS LineDetail,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 1 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck1,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 2 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck2,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 3 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck3,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 4 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck4,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 5 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck5,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 6 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck6,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 7 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck7,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 8 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck8,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 9 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck9,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 10 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck10,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 11 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck11,
-                    MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 12 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck12,
-                    ucld.check_list,
-                    uclc.value,
-                    CASE 
-                    WHEN SPLIT_PART(ucld.check_list, '!', 3) <> ''
-                    THEN 
-                        CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
-                                            ELSE NULL 
-                                        END AS detail_check_list,
-                    ucld.id,
-                    CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) AS valuecheck
-                FROM unity_check_list ucl
-                LEFT OUTER JOIN unity_check_list_detail ucld ON ucl.id = ucld.id_un_ch_list
-                LEFT OUTER JOIN unity_check_list_content uclc ON ucl.id = CAST(SPLIT_PART(uclc.value, '!', 1) AS INTEGER) 
-                and  (CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) = CAST(SPLIT_PART(uclc.value, '!', 3) AS INTEGER) and  (CASE 
-                                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
-                                            ELSE NULL 
-                                        END) = CAST(SPLIT_PART(uclc.value, '!', 4) AS INTEGER))
-                WHERE (CASE 
-                        WHEN SPLIT_PART(ucld.check_list, '!', 3) <> ''
-                        THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
-                        ELSE NULL 
-                    END) IS NOT NULL and ucl.id = %s 
-                GROUP BY ucl.id, ucld.id,uclc.value,ucld.check_list, Head, Subhead, LineDetail,detail_check_list
-                order by
-                ucld.id,detail_check_list,
-                LineDetail
-        """, [id])
+            rows = cursor.fetchall()
 
-        rows = cursor.fetchall()
+            # Process the rows and format the data as needed
+            report_data = []
 
-        # Process the rows and format the data as needed
-        report_data = []
+            for row in rows:
+                    report_data.append({
+                    'id': row[0],
+                    'value': row[1],
+                    'Head': row[6],
+                    'subhead': row[7],
+                    'LineDetail': row[8],
+                    'valuecheck1': row[13],
+                    'valuecheck2': row[14],
+                    'valuecheck3': row[15],
+                    'valuecheck4': row[16],
+                    'valuecheck5': row[17],
+                    'valuecheck6': row[18],
+                    'valuecheck7': row[19],
+                    'valuecheck8': row[20],
+                    'valuecheck9': row[21],
+                    'valuecheck10': row[22],
+                    'valuecheck11': row[23],
+                    'valuecheck12': row[24],
+                })
+        elif unity_check[3] == 2:
+            cursor.execute("""
+                    select 
+                        ucld.id_un_ch_list,
+						ui.unity_name,
+						uid.detail_name,
+						CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                        CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS VARCHAR)
+                            ELSE NULL 
+                        END AS detail_check_list,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 1 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck1,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 2 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck2,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 3 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck3,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 4 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck4,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 5 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck5,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 6 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck6,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 7 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck7,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 8 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck8,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 9 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck9,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 10 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck10,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 11 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck11,
+						MAX(CASE WHEN DATE_PART('month', uclc.ref_date) = 12 THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS INTEGER) END) AS valuecheck12 
+                    from unity_item ui
+                    left outer join unity_item_detail uid on ui.id = uid.id_unity_item
+                    left outer join unity_check_list_detail ucld on ui.id =  CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) and ucld.id_un_ch_list = %s
+                    LEFT OUTER JOIN unity_check_list_content  uclc ON  CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',uid.id,'!','1') = uclc.value
+                    
+                    where 
+                        ui.unity_item_type = 2 
+                    GROUP BY 
+                        ui.unity_name,
+                        uid.detail_name,
+                        ucld.check_list,
+                        uclc.value,
+                        ui.id,
+                        ucld.id,
+                        uclc.value,
+                        ucld.check_list,
+                        header_check_list,
+                        detail_check_list,
+                        ucld.check_list,
+                        uid.id
+                    order by
+                        uid.id_unity_item
+                                """, [id])
 
-        for row in rows:
-                report_data.append({
-                'id': row[0],
-                'value': row[1],
-                'Head': row[2],
-                'subhead': row[3],
-                'LineDetail': row[4],
-                'valuecheck1': row[5],
-                'valuecheck2': row[6],
-                'valuecheck3': row[7],
-                'valuecheck4': row[8],
-                'valuecheck5': row[9],
-                'valuecheck6': row[10],
-                'valuecheck7': row[11],
-                'valuecheck8': row[12],
-                'valuecheck9': row[13],
-                'valuecheck10': row[14],
-                'valuecheck11': row[15],
-                'valuecheck12': row[16],
-            })
+            rows = cursor.fetchall()
+
+            # Process the rows and format the data as needed
+            report_data = []
+
+            for row in rows:
+                    report_data.append({
+                    'id': row[0],
+                    'value': row[1],
+                    'Head': row[1],
+                    'subhead': row[2],
+                    'LineDetail': row[5],
+                    'valuecheck1': row[6],
+                    'valuecheck2': row[7],
+                    'valuecheck3': row[8],
+                    'valuecheck4': row[9],
+                    'valuecheck5': row[10],
+                    'valuecheck6': row[11],
+                    'valuecheck7': row[12],
+                    'valuecheck8': row[13],
+                    'valuecheck9': row[14],
+                    'valuecheck10': row[15],
+                    'valuecheck11': row[16],
+                    'valuecheck12': row[17],
+                })
         return render(request, 'checklistreport.html', {'report_data': report_data , 'unity_check':unity_check})
