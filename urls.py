@@ -35,6 +35,7 @@ urlpatterns = [
     path('checklist_form/<int:id>/', views.checklist_form, name='checklist_form'),
     path('listchecklist/', views.check_list_view, name='check_list_view'),
     path('checklist_report/<int:id>/', views.checklist_report, name='checklist_report'),
+    path('M_checklist_report/<int:id>/', views.m_checklist_report, name='M_checklist_report'),
     # path('unity_checklist/<int:checklist_id>/', views.unity_checklist, name='unity_checklist'),
     # path('process_checklist/', views.process_checklist, name='process_checklist'),
     # path('master/', views.master, name='master'),
