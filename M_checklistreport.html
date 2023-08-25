@@ -1,23 +1,32 @@
-
 <html>
 <head>
-    <title>Checklist Report</title>
+    <meta charset="UTF-8">
+    <title>Checklist report</title>
+    {% load static %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
-    {% include 'header.html' %}
-    {% load static %}
+    <style>
+        .col {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+    </style>
 </head>
 <body>
+    <div class="col">
+            <img src="{% static 'pic/P1.JPG' %}" class="rounded" alt="nidec" width="160px" height="85px"> <br><br>
+     </div>
 
-    <br>
-    <h1>Checklist Report</h1>
-    <br>
-     <label>
-            {{ unity_check.4 }}
+    <form method="post" onsubmit="logSelectedCheckboxes()">
+        {% csrf_token %}
+        <div class="col">
+              <br><br> <h4>{{ unity_check.4 }} </h4>
+        </div>
+        <div class="col">
+               <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
             <br><br>
-            Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
-        </label>
-        <br><br>
+        </div>
     {% if unity_check.3 == 1 %}
     <table class="table">
          <thead>
