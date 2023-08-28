@@ -24,6 +24,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
+    path('M_login/', views.M_login_view, name='M_login'),
     path('WebsmartunityQR/', views.WebsmartunityQR, name='WebsmartunityQR'),
     path('generate_qr_code/', views.generate_qr_code, name='generate_qr_code'),
     path('adduser/', views.add_user, name='adduser'),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout_view'),
     path('get_checkboxes/<int:check_list_type_id>/', views.get_checkboxes, name='get_checkboxes'),
     path('checklist_form/<int:id>/', views.checklist_form, name='checklist_form'),
+    path('M_checklist_form/<int:id>/', views.M_checklist_form, name='M_checklist_form'),
     path('listchecklist/', views.check_list_view, name='check_list_view'),
     path('checklist_report/<int:id>/', views.checklist_report, name='checklist_report'),
     path('M_checklist_report/<int:id>/', views.m_checklist_report, name='M_checklist_report'),

@@ -6,7 +6,8 @@ from django.conf import settings
 from io import BytesIO
 from django.http import HttpResponse,JsonResponse
 from django.db import connection,IntegrityError
-from django import template
+from django.urls import reverse
+
 import json
 
 def login_view(request):
@@ -39,121 +40,156 @@ def login_view(request):
 # #     }
 # #     return HttpResponse(template.render(context, request))
 
+# def WebsmartunityQR(request):
+#     # Execute SQL queries to get data
+#     with connection.cursor() as cursor:
+#         cursor.execute("""select distinct
+#                                 (SELECT COUNT(*)
+#                                  FROM unity_check_list
+#                                  WHERE
+#                                     status = 3
+#                                     AND id_ch_list_type = 1
+#                                     AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                  ),
+#                                 (SELECT COUNT(*)
+#                                  FROM unity_check_list
+#                                  WHERE
+#                                     status <> 3
+#                                     AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                     AND id_ch_list_type = 1
+#                                  ),
+#                                 (SELECT COUNT(*)
+#                                 FROM unity_check_list
+#                                 WHERE
+#                                     EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE)
+#                                     AND id_ch_list_type = 1
+#                                 )
+#                             from
+#                             unity_check_list""")
+#         data1 = cursor.fetchone()
+#         cursor.execute("""select distinct
+#                                 (SELECT COUNT(*)
+#                                  FROM unity_check_list
+#                                  WHERE
+#                                     status = 3
+#                                     AND id_ch_list_type = 2
+#                                     AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                  ),
+#                                 (SELECT COUNT(*)
+#                                  FROM unity_check_list
+#                                  WHERE
+#                                     status <> 3
+#                                     AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                     AND id_ch_list_type = 2
+#                                  ),
+#                                 (SELECT COUNT(*)
+#                                 FROM unity_check_list
+#                                 WHERE
+#                                     EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE)
+#                                     AND id_ch_list_type = 2
+#                                 )
+#                             from
+#                             unity_check_list""")
+#         data2 = cursor.fetchone()
+#         cursor.execute("""select distinct
+#                             (SELECT COUNT(*)
+#                              FROM unity_check_list
+#                              WHERE
+#                                 status = 3
+#                                 AND id_ch_list_type = 3
+#                                 AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                              ),
+#                             (SELECT COUNT(*)
+#                              FROM unity_check_list
+#                              WHERE
+#                                 status <> 3
+#                                 AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                 AND id_ch_list_type = 3
+#                              ),
+#                             (SELECT COUNT(*)
+#                             FROM unity_check_list
+#                             WHERE
+#                                 EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE)
+#                                 AND id_ch_list_type = 3
+#                             )
+#                         from
+#                         unity_check_list
+#                         """)
+#         data3 = cursor.fetchone()
+#         cursor.execute("""select distinct
+#                             (SELECT COUNT(*)
+#                              FROM unity_check_list
+#                              WHERE
+#                                 status = 3
+#                                 AND id_ch_list_type = 4
+#                                 AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                              ),
+#                             (SELECT COUNT(*)
+#                              FROM unity_check_list
+#                              WHERE
+#                                 status <> 3
+#                                 AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
+#                                 AND id_ch_list_type = 4
+#                             ),
+#                             (SELECT COUNT(*)
+#                             FROM unity_check_list
+#                             WHERE
+#                                 EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE)
+#                                 AND id_ch_list_type = 4
+#                             )
+#                         from
+#                         unity_check_list""")
+#         data4 = cursor.fetchone()
+#
+#     # Prepare data for rendering in JavaScript
+#     pie_chart_data = [
+#         {"green": data1[0], "yellow": data1[1], "red": data1[2]},
+#         {"green": data2[0], "yellow": data2[1], "red": data2[2]},
+#         {"green": data3[0], "yellow": data3[1], "red": data3[2]},
+#         {"green": data4[0], "yellow": data4[1], "red": data4[2]},
+#     ]
+#
+#     context = {
+#         'pie_chart_data': json.dumps(pie_chart_data),
+#         'username': request.session['username']
+#     }
+#
+#     return render(request, 'master.html', context)
+
 def WebsmartunityQR(request):
-    # Execute SQL queries to get data
+    if 'username' not in request.session:
+        return redirect('login')
     with connection.cursor() as cursor:
-        cursor.execute("""select distinct
-                                (SELECT COUNT(*)
-                                 FROM unity_check_list
-                                 WHERE 
-                                    status = 3  
-                                    AND id_ch_list_type = 1  
-                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
-                                 ),
-                                (SELECT COUNT(*)
-                                 FROM unity_check_list
-                                 WHERE 
-                                    status <> 3 
-                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
-                                    AND id_ch_list_type = 1 
-                                 ),
-                                (SELECT COUNT(*)
-                                FROM unity_check_list
-                                WHERE 
-                                    EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
-                                    AND id_ch_list_type = 1 
-                                )
-                            from
-                            unity_check_list""")
-        data1 = cursor.fetchone()
-        cursor.execute("""select distinct
-                                (SELECT COUNT(*)
-                                 FROM unity_check_list
-                                 WHERE 
-                                    status = 3  
-                                    AND id_ch_list_type = 2  
-                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
-                                 ),
-                                (SELECT COUNT(*)
-                                 FROM unity_check_list
-                                 WHERE 
-                                    status <> 3 
-                                    AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
-                                    AND id_ch_list_type = 2 
-                                 ),
-                                (SELECT COUNT(*)
-                                FROM unity_check_list
-                                WHERE 
-                                    EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
-                                    AND id_ch_list_type = 2 
-                                )
-                            from
-                            unity_check_list""")
-        data2 = cursor.fetchone()
-        cursor.execute("""select distinct
-                            (SELECT COUNT(*)
-                             FROM unity_check_list
-                             WHERE 
-                                status = 3  
-                                AND id_ch_list_type = 3  
-                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
-                             ),
-                            (SELECT COUNT(*)
-                             FROM unity_check_list
-                             WHERE 
-                                status <> 3 
-                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
-                                AND id_ch_list_type = 3 
-                             ),
-                            (SELECT COUNT(*)
-                            FROM unity_check_list
-                            WHERE 
-                                EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
-                                AND id_ch_list_type = 3 
-                            )
-                        from
-                        unity_check_list
-                        """)
-        data3 = cursor.fetchone()
-        cursor.execute("""select distinct
-                            (SELECT COUNT(*)
-                             FROM unity_check_list
-                             WHERE 
-                                status = 3  
-                                AND id_ch_list_type = 4  
-                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE)
-                             ),
-                            (SELECT COUNT(*)
-                             FROM unity_check_list
-                             WHERE 
-                                status <> 3 
-                                AND EXTRACT(MONTH FROM refdate)=EXTRACT(MONTH FROM CURRENT_DATE) 
-                                AND id_ch_list_type = 4 
-                            ),
-                            (SELECT COUNT(*)
-                            FROM unity_check_list
-                            WHERE 
-                                EXTRACT(MONTH FROM refdate)< EXTRACT(MONTH FROM CURRENT_DATE) 
-                                AND id_ch_list_type = 4 
-                            )
-                        from
-                        unity_check_list""")
-        data4 = cursor.fetchone()
+        cursor.execute(
+            """ select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),
+                unity_check_list.status,
+                (SELECT
+                    CASE
+                        WHEN unity_check_list.status = 4 THEN  'Approved'
+                        WHEN unity_check_list.status = 3 THEN  'Waiting Approved'
+                        WHEN unity_check_list.status = 2 THEN  'Waiting Checked'
+                        WHEN unity_check_list.status = 1 THEN  'Waiting Inspected'
+                        ELSE NULL 
+                    END AS name_status),
+                (SELECT
+                    CASE
+                        WHEN unity_check_list.status = 4  AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'g'
+                        WHEN unity_check_list.status <> 4 AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'y'
+                        WHEN EXTRACT(MONTH FROM unity_check_list.refdate)< EXTRACT(MONTH FROM CURRENT_DATE) THEN 'r'
+                        ELSE NULL 
+                    END AS colour)
+                from unity_check_list 
+                left outer join department on unity_check_list.id_department = department.id 
+                left outer join area on unity_check_list.id_area = area.id 
+                left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 
+            """)
+        check_list_data = cursor.fetchall()
+        # print(check_list_data)
+    # context = {
+    #     'username': request.session['username']
+    # }
 
-    # Prepare data for rendering in JavaScript
-    pie_chart_data = [
-        {"green": data1[0], "yellow": data1[1], "red": data1[2]},
-        {"green": data2[0], "yellow": data2[1], "red": data2[2]},
-        {"green": data3[0], "yellow": data3[1], "red": data3[2]},
-        {"green": data4[0], "yellow": data4[1], "red": data4[2]},
-    ]
-
-    context = {
-        'pie_chart_data': json.dumps(pie_chart_data),
-        'username': request.session['username']
-    }
-
-    return render(request, 'master.html', context)
+    return render(request, 'master.html',{'listchecklists': check_list_data})
 
 def add_user(request):
 
@@ -203,28 +239,89 @@ def userdelete(request, user_id):
         cursor.execute("DELETE FROM user_login WHERE id = %s", [user_id])
     return redirect('userlist')
 
+# def generate_qr_code(request):
+#     if request.method == 'POST':
+#         area = request.POST.get('area', '')
+#         id_department = request.POST.get('department', '')
+#         id_ch_li_type = request.POST.get('check_list_type', '')
+#         selected_checkboxes = request.POST.getlist('checklist_item')
+#
+#         # Combine item_code and id_department into a single string
+#         data = f"{area}, {id_department}, {id_ch_li_type} "
+#         # data += ", ".join(selected_checkboxes)
+#
+#         # Generate QR code
+#         qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+#         qr.add_data(data)
+#         qr.make(fit=True)
+#         img = qr.make_image(fill_color='black', back_color='white')
+#
+#         # Save the QR code image to a BytesIO object
+#         buffer = BytesIO()
+#         img.save(buffer, format='PNG')
+#         qr_code_image = buffer.getvalue()
+#
+#         # Save data to PostgreSQL
+#
+#         try:
+#             with connection.cursor() as cursor:
+#                 # Check for duplicate entry before inserting
+#                 cursor.execute(
+#                     "SELECT id FROM unity_check_list WHERE id_area = %s AND id_department = %s AND id_ch_list_type = %s",
+#                     [area, id_department, id_ch_li_type]
+#                 )
+#                 duplicate_entry = cursor.fetchone()
+#
+#                 if duplicate_entry:
+#                     return render(request, 'genqr.html',
+#                                   {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
+#                                    'check_list_types': get_unity_check_list_type()})
+#
+#                 # No duplicate entry, proceed with insertion
+#                 cursor.execute(
+#                     "INSERT INTO unity_check_list (id_area, id_department, qr_code, id_ch_list_type, remark) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id",
+#                     [area, id_department, data, id_ch_li_type, ", ".join(selected_checkboxes)]
+#                 )
+#                 unity_check_list_id = cursor.fetchone()[0]  # ดึงค่า id ที่ถูกเพิ่มล่าสุด
+#                 # เพิ่มข้อมูลลงในตาราง unity_check_list_detail
+#                 for checkbox in selected_checkboxes:
+#                     cursor.execute(
+#                         "INSERT INTO unity_check_list_detail (id_un_ch_list, check_list) VALUES (%s, %s)",
+#                         [unity_check_list_id, checkbox]
+#                     )
+#         except IntegrityError as e:
+#             return render(request, 'genqr.html',
+#                           {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
+#                            'check_list_types': get_unity_check_list_type()})
+#         except Exception as e:
+#             print("Error inserting data:", e)
+#
+#         # Save the QR code image to the desired location
+#         qr_code_filename = f"{data}.png"
+#         qr_code_path = os.path.join("qrcodes", qr_code_filename)
+#         full_qr_code_path = os.path.join(settings.MEDIA_ROOT, qr_code_path)
+#         with open(full_qr_code_path, "wb") as f:
+#             f.write(qr_code_image)
+#
+#         # Print for debugging
+#         print(data)
+#         print(qr_code_path)
+#         print(full_qr_code_path)
+#
+#         # Return the rendered HTML with the QR code image path
+#         return render(request, 'genqr.html', {'qr_code_path': qr_code_path, 'areas': get_areas(), 'departments': get_departments(), 'check_list_types': get_unity_check_list_type(),})
+#     else:
+#         return render(request, 'genqr.html', {'areas': get_areas(), 'departments': get_departments(), 'check_list_types': get_unity_check_list_type()})
+#
+
 def generate_qr_code(request):
     if request.method == 'POST':
         area = request.POST.get('area', '')
         id_department = request.POST.get('department', '')
         id_ch_li_type = request.POST.get('check_list_type', '')
         selected_checkboxes = request.POST.getlist('checklist_item')
-
-        # Combine item_code and id_department into a single string
         data = f"{area}, {id_department}, {id_ch_li_type} "
-        # data += ", ".join(selected_checkboxes)
-
-        # Generate QR code
-        qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
-        qr.add_data(data)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color='black', back_color='white')
-
-        # Save the QR code image to a BytesIO object
-        buffer = BytesIO()
-        img.save(buffer, format='PNG')
-        qr_code_image = buffer.getvalue()
-
+        data += ", ".join(selected_checkboxes)
         # Save data to PostgreSQL
 
         try:
@@ -238,21 +335,49 @@ def generate_qr_code(request):
 
                 if duplicate_entry:
                     return render(request, 'genqr.html',
-                                  {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
-                                   'check_list_types': get_unity_check_list_type()})
-
+                                  {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(), 'check_list_types': get_unity_check_list_type()})
                 # No duplicate entry, proceed with insertion
                 cursor.execute(
-                    "INSERT INTO unity_check_list (id_area, id_department, qr_code, id_ch_list_type, remark) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id",
-                    [area, id_department, data, id_ch_li_type, ", ".join(selected_checkboxes)]
+                    "INSERT INTO unity_check_list (id_area, id_department, id_ch_list_type, remark, data,status) VALUES (%s, %s, %s, %s, %s ,%s) ON CONFLICT DO NOTHING RETURNING id",
+                    [area, id_department, id_ch_li_type,", ".join(selected_checkboxes),data,1]
                 )
-                unity_check_list_id = cursor.fetchone()[0]  # ดึงค่า id ที่ถูกเพิ่มล่าสุด
-                # เพิ่มข้อมูลลงในตาราง unity_check_list_detail
+                # unity_check_list_id = cursor.fetchone()[0]  # Get the inserted ID
+                unity_check_list_id = cursor.fetchone()[0]
+
+
                 for checkbox in selected_checkboxes:
-                    cursor.execute(
-                        "INSERT INTO unity_check_list_detail (id_un_ch_list, check_list) VALUES (%s, %s)",
-                        [unity_check_list_id, checkbox]
-                    )
+                    cursor.execute(  "INSERT INTO unity_check_list_detail (id_un_ch_list, check_list) VALUES (%s, %s)",
+                                            [unity_check_list_id, checkbox]
+                                        )
+                # Set the data variable with unity_check_list_id
+                base_url = request.build_absolute_uri('/')
+                # data = f"{unity_check_list_id}"
+                data = f"{base_url}M_checklist_report/{unity_check_list_id}/"  # URL ของหน้า "Checklist report"
+                print(unity_check_list_id)
+
+                # Generate QR code
+                qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+                qr.add_data(data)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color='black', back_color='white')
+
+                # Save the QR code image to a BytesIO object
+                buffer = BytesIO()
+                img.save(buffer, format='PNG')
+                qr_code_image = buffer.getvalue()
+
+                # Save the QR code image to the desired location
+                qr_code_filename = f"{unity_check_list_id}.png"
+                qr_code_path = os.path.join("qrcodes", qr_code_filename)
+                full_qr_code_path = os.path.join(settings.MEDIA_ROOT, qr_code_path)
+                with open(full_qr_code_path, "wb") as f:
+                    f.write(qr_code_image)
+
+                # Generate the URL for the "Checklist report" using the reverse function
+                report_url = reverse('checklist_report', args=[unity_check_list_id])
+                # Redirect to the "Checklist report" page after successfully generating QR code
+                return redirect(report_url)
+
         except IntegrityError as e:
             return render(request, 'genqr.html',
                           {'duplicate_error': True, 'areas': get_areas(), 'departments': get_departments(),
@@ -260,22 +385,8 @@ def generate_qr_code(request):
         except Exception as e:
             print("Error inserting data:", e)
 
-        # Save the QR code image to the desired location
-        qr_code_filename = f"{data}.png"
-        qr_code_path = os.path.join("qrcodes", qr_code_filename)
-        full_qr_code_path = os.path.join(settings.MEDIA_ROOT, qr_code_path)
-        with open(full_qr_code_path, "wb") as f:
-            f.write(qr_code_image)
-
-        # Print for debugging
-        print(data)
-        print(qr_code_path)
-        print(full_qr_code_path)
-
-        # Return the rendered HTML with the QR code image path
-        return render(request, 'genqr.html', {'qr_code_path': qr_code_path, 'areas': get_areas(), 'departments': get_departments(), 'check_list_types': get_unity_check_list_type(),})
     else:
-        return render(request, 'genqr.html', {'areas': get_areas(), 'departments': get_departments(), 'check_list_types': get_unity_check_list_type()})
+        return render(request, 'genqr.html', {'areas': get_areas(), 'departments': get_departments(),'check_list_types': get_unity_check_list_type()})
 
 # สมมติว่า check_list_type_id เป็นชนิดข้อมูลแบบ int หรือตัวเลข
 def get_checkboxes(request, check_list_type_id):
@@ -348,17 +459,17 @@ def get_areas():
             areas.append(area)
     return areas
 
-def get_areas_by_department(request, department_id):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM area WHERE id_department = %s", [department_id])
-        areas = []
-        for row in cursor.fetchall():
-            area = {
-                'id': row[0],
-                'name': row[1]
-            }
-            areas.append(area)
-    return JsonResponse(areas, safe=False)
+# def get_areas_by_department(request, department_id):
+#     with connection.cursor() as cursor:
+#         cursor.execute("SELECT * FROM area WHERE id_department = %s", [department_id])
+#         areas = []
+#         for row in cursor.fetchall():
+#             area = {
+#                 'id': row[0],
+#                 'name': row[1]
+#             }
+#             areas.append(area)
+#     return JsonResponse(areas, safe=False)
 
 def get_unity_check_list_type():
     with connection.cursor() as cursor:
@@ -391,7 +502,7 @@ def checklist_form(request, id):
         checklist_items = []
         with connection.cursor() as cursor:
             # Fetch the unity check list item based on the provided id
-            cursor.execute("SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate), unity_check_list.qr_code FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s", [id])
+            cursor.execute("SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate) FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s", [id])
             unity_check = cursor.fetchone()
 
             # Fetch checklist items related to the unity check list item
@@ -454,7 +565,7 @@ def checklist_form(request, id):
 def check_list_view(request):
     # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูล
     with connection.cursor() as cursor:
-        cursor.execute("select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),unity_check_list.qr_code  from unity_check_list left outer join department on unity_check_list.id_department = department.id left outer join area on unity_check_list.id_area = area.id left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id ")
+        cursor.execute("select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate)  from unity_check_list left outer join department on unity_check_list.id_department = department.id left outer join area on unity_check_list.id_area = area.id left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id ")
         check_list_data = cursor.fetchall()
         # print(check_list_data)
     return render(request, 'listchecklist.html', {'listchecklists': check_list_data})
@@ -462,7 +573,7 @@ def check_list_view(request):
 def checklist_report(request, id):
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate), unity_check_list.qr_code FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
+            "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate) FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
             [id])
         unity_check = cursor.fetchone()
         if unity_check[3] == 1:
@@ -616,11 +727,10 @@ def checklist_report(request, id):
                 })
         return render(request, 'checklistreport.html', {'report_data': report_data , 'unity_check':unity_check})
 
-
 def m_checklist_report(request, id):
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate), unity_check_list.qr_code FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
+            "SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate) FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s",
             [id])
         unity_check = cursor.fetchone()
         if unity_check[3] == 1:
@@ -773,3 +883,95 @@ def m_checklist_report(request, id):
                     'valuecheck12': row[17],
                 })
         return render(request, 'M_checklistreport.html', {'report_data': report_data, 'unity_check': unity_check})
+
+def M_checklist_form(request, id):
+    if request.method == 'POST':
+        selected_checkboxes = request.POST.getlist('checklist_item_sub')  # Get selected checkboxes
+        if selected_checkboxes:
+            with connection.cursor() as cursor:
+                 for value in selected_checkboxes:
+                     # Insert each selected checkbox value into the database table
+                    cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)",
+                                     [value])
+        return redirect('M_checklist_report', id=id)
+    else:
+        checklist_items = []
+        with connection.cursor() as cursor:
+            # Fetch the unity check list item based on the provided id
+            cursor.execute("SELECT unity_check_list.id, department.department_name, area.area_name, unity_check_list.id_ch_list_type, unity_check_list_type.name_ch_type, date(unity_check_list.refdate) FROM unity_check_list LEFT OUTER JOIN department ON unity_check_list.id_department = department.id LEFT OUTER JOIN area ON unity_check_list.id_area = area.id LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id WHERE unity_check_list.id = %s", [id])
+            unity_check = cursor.fetchone()
+
+            # Fetch checklist items related to the unity check list item
+            if unity_check[3] == 1:
+                cursor.execute("""
+                    SELECT 
+                        CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                        CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER)
+                            ELSE NULL 
+                        END AS detail_check_list,
+						unity_sub_item.id,
+                        unity_item.unity_name, 
+                        unity_check_list_type.name_ch_type, 
+                        unity_item_detail.detail_name,
+                        unity_sub_item.un_sub_num,
+                        CONCAT (id_un_ch_list,'!',ucld.check_list,'!',unity_sub_item.id,'!','1') 
+                    FROM unity_check_list_detail ucld 
+                    LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) 
+                    LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) 
+                    LEFT OUTER JOIN unity_item_detail ON (
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) ~ '^\d+$' THEN unity_item_detail.id = CAST(SPLIT_PART(ucld.check_list, '!', 3) AS INTEGER) 
+                            ELSE FALSE 
+                        END
+                    ) 
+                    LEFT OUTER JOIN unity_sub_item ON unity_item_detail.id = unity_sub_item.id_un_item_detail 
+                    WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 1 AND id_un_ch_list = %s AND unity_item_detail.detail_name IS NOT NULL
+                    Order by 
+					header_check_list,detail_check_list,unity_sub_item.id 
+                """, [id])
+                checklist_items = cursor.fetchall()
+
+            # Handle the second case for id_ch_list_type = 2
+            elif unity_check[3] == 2:
+                cursor.execute("""
+                    SELECT 
+                        CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                        CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                        CASE 
+                            WHEN SPLIT_PART(ucld.check_list, '!', 3) <> '' THEN SPLIT_PART(ucld.check_list, '!', 3)
+                            ELSE NULL 
+                        END AS item_code,
+                        unity_item.unity_name, 
+                        unity_check_list_type.name_ch_type, 
+                        unity_item_detail.detail_name,
+						CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',unity_item_detail.id,'!','1') 
+                    FROM unity_check_list_detail ucld 
+                    LEFT OUTER JOIN unity_item ON unity_item.id = CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) 
+                    LEFT OUTER JOIN unity_check_list_type ON unity_check_list_type.id = CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) 
+                    LEFT OUTER JOIN unity_item_detail ON unity_item.id = unity_item_detail.id_unity_item 
+                    WHERE CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) = 2 AND id_un_ch_list = %s
+                """, [id])
+                checklist_items = cursor.fetchall()
+                # print(checklist_items)
+
+    return render(request, 'M_checklist.html', {'unity_check': unity_check, 'checklist_items': checklist_items})
+
+def M_login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [username, password])
+            user_data = cursor.fetchone()
+        if user_data is not None:
+            # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
+            request.session['id_user_type'] = user_data[3]
+            request.session['username'] = user_data[1]# เก็บค่า id_user_type ใน session
+            return redirect('M_checklist_form')
+        else:
+            error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
+            return render(request, 'M_login.html', {'error_message': error_message})
+    return render(request, 'M_login.html')
