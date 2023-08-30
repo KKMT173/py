@@ -12,13 +12,13 @@
     <br>
     <h1>Checklist Report</h1>
     <br>
+    {% if unity_check.3 == 1 %}
      <label>
             {{ unity_check.4 }}
             <br><br>
             Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
         </label>
         <br><br>
-    {% if unity_check.3 == 1 %}
     <table class="table">
          <thead>
                 <tr>
@@ -71,6 +71,12 @@
         </tbody>
     </table>
     {% elif unity_check.3 == 2 %}
+    <label>
+            {{ unity_check.4 }}
+            <br><br>
+            Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
+    </label>
+        <br><br>
     <table class="table">
              <thead>
                     <tr>
@@ -122,6 +128,42 @@
                     <!-- เพิ่มคอลัมน์สำหรับ Value 3 ถึง Value 12 ตามต้องการ -->
                 </tr>
                 {% endfor %}
+            </tbody>
+        </table>
+    {% elif unity_check.3 == 3 %}
+    <label>
+            {{ unity_check.4 }}
+            <br><br>
+            Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
+            <br><br>
+            Code : {{ report_data.6 }}&nbsp;&nbsp;&nbsp;&nbsp; ชนิดถังดับเพลิง : {{ report_data.7 }}&nbsp;&nbsp;&nbsp;&nbsp; ขนาด : {{ report_data.8 }}
+        </label>
+        <br><br>
+    <table class="table">
+             <thead>
+                    <tr>
+                        <th>วันที่ตรวจเช็ค</th>
+                        <th>ผลการตรวจเช็ค</th>
+                        <th>ผู้ตรวจเช็ค</th>
+                        <th>หมายเหตุ</th>
+                    </tr>
+             </thead>
+            <tbody id="tr3">
+            {% for item in report_data_ch %}
+               <tr>
+                   <td>{{ item.4 }}</td>
+                   <td>
+                       {% if item.3 == 1 %}
+                            OK
+                       {% elif item.3 == 2 %}
+                            NO
+                       {% endif %}
+                   </td>
+
+                   <td></td>
+                   <td>{{ item.5 }}</td>
+               </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% endif %}

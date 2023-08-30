@@ -11,10 +11,21 @@
           justify-content: center;
           align-items: center;
         }
-        .login-button {
+        #bth1 {
             position: absolute;
             top: 20px; /* ปรับตำแหน่งตามที่คุณต้องการ */
             right: 20px; /* ปรับตำแหน่งตามที่คุณต้องการ */
+        }
+        #bth2 {
+            position: absolute;
+            top: 50px; /* ปรับตำแหน่งตามที่คุณต้องการ */
+            right: 20px; /* ปรับตำแหน่งตามที่คุณต้องการ */
+        }
+        #logout{
+            position: absolute
+            top: 50px;
+            right: 20px;
+
         }
     </style>
 </head>
@@ -140,7 +151,15 @@
             </table>
         {% endif %}
     </form>
-<a href="{% url 'M_login' %}" class="btn btn-primary login-button">Login</a>
+    {% if request.session.M_username %}
+    <a href="{% url 'M_logout_view' %}?id={{ unity_check.0 }}" class="btn btn-primary login-button" id="logout">
+        Logout
+    </a>
+    {{ request.session.M_username }}
+{% else %}
+    <a href="{% url 'M_login' %}?next={% url 'M_checklist_form' unity_check.0 %}" class="btn btn-primary login-button" id="bth1">Login</a>
+{% endif %}
+<!--    <a href="{% url 'M_checklist_form' unity_check.0 %}" class="btn btn-primary login-button" id="bth2">Continue</a>-->
 </body>
 
 </html>

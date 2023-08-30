@@ -98,25 +98,27 @@
 
                     // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
                     document.querySelector("form").addEventListener("submit", function(event) {
-                    const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
-                    if (selectedCheckboxes.length === 0) {
-                        event.preventDefault(); // ยกเลิกการส่งฟอร์มเมื่อไม่มี checkbox ที่ถูกเลือก
-                        alert("กรุณาเลือกอย่างน้อยหนึ่งช่อง");
-                        return;
-                    }
-                    const selectedCheckboxesInput = document.createElement("input");
-                    selectedCheckboxesInput.type = "hidden";
-                    selectedCheckboxesInput.name = "selected_checkboxes";
-                    selectedCheckboxesInput.value = selectedCheckboxes.length > 0 ? selectedCheckboxes.map(checkbox => checkbox.value).join(',') : '';
-                    form.appendChild(selectedCheckboxesInput);
-                    // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
-                    const item_id2Textbox = document.getElementById("item_id2_textbox");
-                    const checkboxes = document.getElementsByName("checklist_item");
-                    checkboxes.forEach(checkbox => {
-                        checkbox.value = checkbox.dataset.originalValue + "!" + item_id2Textbox.value;
+                        if (checkListTypeSelect.value !== "3") {
+                            // ตรวจสอบว่าค่า checkListTypeSelect.value ไม่เท่ากับ "3" ก่อนที่จะแสดงการแจ้งเตือน
+                            const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                            if (selectedCheckboxes.length === 0) {
+                                event.preventDefault(); // ยกเลิกการส่งฟอร์มเมื่อไม่มี checkbox ที่ถูกเลือก
+                                alert("กรุณาเลือกอย่างน้อยหนึ่งช่อง");
+                                return;
+                            }
+                            const selectedCheckboxesInput = document.createElement("input");
+                            selectedCheckboxesInput.type = "hidden";
+                            selectedCheckboxesInput.name = "selected_checkboxes";
+                            selectedCheckboxesInput.value = selectedCheckboxes.length > 0 ? selectedCheckboxes.map(checkbox => checkbox.value).join(',') : '';
+                            form.appendChild(selectedCheckboxesInput);
+                            // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
+                            const item_id2Textbox = document.getElementById("item_id2_textbox");
+                            const checkboxes = document.getElementsByName("checklist_item");
+                            checkboxes.forEach(checkbox => {
+                                checkbox.value = checkbox.dataset.originalValue + "!" + item_id2Textbox.value;
+                            });
+                        }
                     });
-                });
-
                 });
 
                 // สร้าง textbox สำหรับรหัสเลขที่หลัง checkbox ที่มีค่า item_id2
@@ -160,11 +162,66 @@
                     {% endfor %}
                 </select>
             <br><br>
-
-            <div id="checkboxes">
-                <!-- Checkboxes will be populated here using JavaScript -->
-            </div>
+               {% for list_type in check_list_types %}
+                    {% if list_type.id_ch_li_type == 3 %}
+                        <div>
+                            <input type="text" name="textbox_item3" id="textbox_item3" placeholder="รหัสอุปกรณ์">
+                            <br><br>
+                        </div>
+                        <div>
+                            <input type="text" name="textbox_item4" id="textbox_item4" placeholder="ชนิดถังดับเพลิง">
+                            <br><br>
+                        </div>
+                        <div>
+                            <input type="text" name="textbox_item5" id="textbox_item5" placeholder="ขนาด">
+                            <br><br>
+                        </div>
+                    {% else %}
+                        <div id="checkboxes">
+                            <!-- Checkboxes will be populated here using JavaScript -->
+                        </div>
+                    {% endif %}
+                {% endfor %}
             <br>
+             <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const checkListTypeSelect = document.getElementById("check_list_type");
+                    const checkboxesContainer = document.getElementById("checkboxes");
+                    const textboxItem3 = document.getElementById("textbox_item3");
+                    const textboxItem4 = document.getElementById("textbox_item4");
+                    const textboxItem5 = document.getElementById("textbox_item5");
+
+                    checkListTypeSelect.addEventListener("change", function() {
+                        if (checkListTypeSelect.value === "3") {
+                            // ถ้าเลือกประเภทการตรวจสอบเป็น 3 ให้แสดงช่องรหัสเลขที่
+                            textboxItem3.style.display = "block";
+                            textboxItem4.style.display = "block";
+                            textboxItem5.style.display = "block";
+                            checkboxesContainer.style.display = "none";
+                        } else {
+                            // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
+                            textboxItem3.style.display = "none";
+                            textboxItem4.style.display = "none";
+                            textboxItem5.style.display = "none";
+                            checkboxesContainer.style.display = "block";
+                        }
+                    });
+
+                    // ให้กำหนดสถานะเริ่มต้นเมื่อโหลดหน้าเว็บ
+                    if (checkListTypeSelect.value === "3") {
+                            textboxItem3.style.display = "block";
+                            textboxItem4.style.display = "block";
+                            textboxItem5.style.display = "block";
+                        checkboxesContainer.style.display = "none";
+                    } else {
+                        textboxItem3.style.display = "none";
+                        textboxItem3.style.display = "none";
+                        textboxItem4.style.display = "none";
+                        textboxItem5.style.display = "none";
+                        checkboxesContainer.style.display = "block";
+                    }
+                });
+            </script>
            <input type="submit" value="Generate QR Code" class="generate_qr_btn" id="generate_qr_btn" onclick="return confirmGenerateQRCode(event)">
            <script>
                 function confirmGenerateQRCode(event) {
@@ -177,7 +234,7 @@
       {% if duplicate_error %}
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้ทำการสร้าง QR Code แล้ว คุณต้องการที่จะทำการสร้าง QR Code ใหม่หรือไม่?");
+                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้มี QR Code ของแบบฟอร์มนี้แล้ว กรุฯาตรวจสอบใหม่อีกครั้ง");
                     if (!shouldGenerate) {
                         // ไม่ต้องทำอะไรเพิ่ม
                     }
@@ -207,7 +264,6 @@
             });
         </script>
     </div>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const checkListTypeSelect = document.getElementById("check_list_type");
@@ -228,7 +284,7 @@
           textSpan.innerHTML = labelText;
           label.appendChild(textSpan);
 
-          if (selectedType !== "1") {
+          if (selectedType === "2") {
               const inputTextbox = document.createElement("input");
               inputTextbox.type = "text";
               inputTextbox.name = "textbox_item";
@@ -238,7 +294,7 @@
 
           checkboxesContainer.appendChild(label);
 
-          if (selectedType !== "1") {
+          if (selectedType === "2") {
               // Add event listener to update checkbox value when the textbox value changes
               const inputTextbox = label.querySelector("input[name='textbox_item']");
               inputTextbox.addEventListener("input", function () {
@@ -304,7 +360,10 @@
     }
 
         checkListTypeSelect.addEventListener("change", function() {
-            selectedType = checkListTypeSelect.value; // กำหนดค่า selectedType เมื่อผู้ใช้เลือกประเภท checklist
+        selectedType = checkListTypeSelect.value; // กำหนดค่า selectedType เมื่อผู้ใช้เลือกประเภท checklist
+
+        // เพิ่มเงื่อนไขเช็ค selectedType เป็น "1" หรือ "2" เท่านั้น
+        if (selectedType === "1" || selectedType === "2") {
             // Get the list of checkboxes for the selected type from Django view using AJAX
             fetch(`/get_checkboxes/${selectedType}/`)
                 .then(response => response.json())
@@ -321,7 +380,7 @@
                         // Display unity_name as a main checkbox if it's not the same as the last displayed one
                         if (item.unity_name !== lastUnityName) {
                             createCheckboxWithLabel(selectedType === "1" ? item.un_item_id : item.item_id2, item.unity_name, false);
-                            if (selectedType !== "1") {
+                            if (selectedType === "2") {
                                 createInputTextbox(); // สร้าง textbox หากไม่ใช่ selectedType เป็น "1"
                             }
                             lastUnityName = item.unity_name;
@@ -337,7 +396,8 @@
                 .catch(error => {
                     console.error("Error fetching checkboxes:", error);
                 });
-        });
+        }
+    });
     });
 </script>
 

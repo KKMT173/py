@@ -5,6 +5,7 @@
     {% load static %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
+    {% include 'header.html' %}
     <style>
         .col {
           display: flex;
@@ -20,6 +21,8 @@
 
     <form method="post" onsubmit="logSelectedCheckboxes()">
         {% csrf_token %}
+
+       {% if unity_check.3 == 1 %}
         <div class="col">
               <br><br> <h4>{{ unity_check.4 }} </h4>
         </div>
@@ -27,7 +30,6 @@
                <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
             <br><br>
         </div>
-       {% if unity_check.3 == 1 %}
         <br>
             {% for item in checklist_items %}
                 {% ifchanged item.4 %}
@@ -46,7 +48,13 @@
             {% endfor %}
 
         {% elif unity_check.3 == 2 %}
-            <h2>Checklist Items:</h2>
+            <div class="col">
+              <br><br> <h4>{{ unity_check.4 }} </h4>
+        </div>
+        <div class="col">
+               <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+            <br><br>
+        </div>
             {% for item in checklist_items %}
                 {% ifchanged item.3 %}
                     <br>
@@ -58,26 +66,72 @@
                     </label>
                 <br>
             {% endfor %}
+        {% elif unity_check.3 == 3 %}
+         <div class="col">
+              <br><br> <h4>{{ unity_check.4 }} </h4>
+        </div>
+        <div class="col">
+               <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+               <br><br>
+        </div>
+        <div class="col">
+             {% for checklist in checklist_items %}
+              <h4>Code : {{ checklist.0 }}&nbsp;&nbsp;&nbsp;&nbsp; ชนิดถังดับเพลิง : {{ checklist.1 }}&nbsp;&nbsp;&nbsp;&nbsp; ขนาด : {{ checklist.2 }}</h4>
+                   <br><br>
+            {% endfor %}
+         </div>
+              {% for item3 in checklist_items %}
+                <br>
+                <h3>ยืนยันความสมบูรณ์ของถังดับเพลิง</h3>
+
+                <label>
+                    &nbsp;&nbsp; <input type="radio" name="checklist_item_sub" value="{{ item3.3 }}">
+                    ยืนยืน
+                </label><br><br>
+
+                <label>
+                    &nbsp;&nbsp; <input type="radio" name="checklist_item_sub" value="{{ item3.4 }}">
+                    ไม่ยืนยัน
+                    <input type="text" name="remark" id="remark" placeholder="หมายเหตุ">
+                </label>
+
+
+                <br>
+            {% endfor %}
         {% endif %}
         <input type="hidden" id="selected_checkboxes" name="selected_checkboxes" value="">
         <br>
         <input type="submit" value="Submit Checklist">
     </form>
 
-    <script>
-        function logSelectedCheckboxes() {
-            var checkboxes = document.getElementsByName('checklist_item_sub');
-            var selectedCheckboxes = [];
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    selectedCheckboxes.push(checkboxes[i].value);
-                }
+      <script>
+    function logSelectedCheckboxes() {
+        var checkboxes = document.getElementsByName('checklist_item_sub');
+        var selectedCheckboxes = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                selectedCheckboxes.push(checkboxes[i].value);
             }
-            console.log('Selected Checkboxes:', selectedCheckboxes);
-
-            // Set the selected checkboxes to a hidden input field in the form
-            document.getElementById('selected_checkboxes').value = selectedCheckboxes.join(',');
         }
-    </script>
+
+        // Get the value from the "remark" input field
+        var remark = document.getElementById('remark').value;
+
+        // If "remark" has a value, create a new radio button value and add it to the array
+        if (remark) {
+            var newRadioValue = '{{ item.4 }}' + '!' + remark;
+            selectedCheckboxes.push(newRadioValue);
+        } else {
+            // If "remark" is empty, add only the radio button value
+            selectedCheckboxes.push('{{ item.4 }}');
+        }
+
+        console.log('Selected Checkboxes:', selectedCheckboxes);
+
+        // Set the selected checkboxes to a hidden input field in the form
+        document.getElementById('selected_checkboxes').value = selectedCheckboxes.join(',');
+    }
+</script>
+
 </body>
 </html>
