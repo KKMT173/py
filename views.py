@@ -320,8 +320,15 @@ def generate_qr_code(request):
         id_department = request.POST.get('department', '')
         id_ch_li_type = request.POST.get('check_list_type', '')
         selected_checkboxes = request.POST.getlist('checklist_item')
-        data = f"{area}, {id_department}, {id_ch_li_type} "
+        data = f"{area}, {id_department}, {id_ch_li_type}, "
         data += ", ".join(selected_checkboxes)
+        textbox_item3 = request.POST.get('textbox_item3', '')
+        textbox_item4 = request.POST.get('textbox_item4', '')
+        textbox_item5 = request.POST.get('textbox_item5', '')
+
+        # รวมข้อมูลจาก textbox กับข้อมูล checkboxes
+        data += f"{textbox_item3},{textbox_item4},{textbox_item5}"
+        # รวมข้อมูลจาก textbox ด้วยข้อมูล checkboxes
         # Save data to PostgreSQL
 
         try:
@@ -414,7 +421,7 @@ def get_checkboxes(request, check_list_type_id):
                 }
                 checkboxes.append(checkbox)
 
-        else:
+        elif check_list_type_id == 2:
             cursor.execute(
                 # Query สำหรับเมื่อ check_list_type_id ไม่ใช่ 1
                 "SELECT unity_check_list_type.id, unity_check_list_type.name_ch_type, unity_item.unity_name, unity_item_detail.detail_name, unity_item.id as item_id2, unity_item_detail.id FROM unity_check_list_type left outer join unity_item on unity_check_list_type.id = unity_item.unity_item_type left outer join unity_item_detail on unity_item.id = unity_item_detail.id_unity_item WHERE unity_check_list_type.id = %s order by unity_check_list_type.id,unity_item.id,unity_item_detail.id",
@@ -491,12 +498,17 @@ def logout_view(request):
 def checklist_form(request, id):
     if request.method == 'POST':
         selected_checkboxes = request.POST.getlist('checklist_item_sub')  # Get selected checkboxes
+        remark = request.POST.get('remark', '')  # Get the value of "remark"
+
         if selected_checkboxes:
             with connection.cursor() as cursor:
-                 for value in selected_checkboxes:
-                     # Insert each selected checkbox value into the database table
-                    cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)",
-                                     [value])
+                for value in selected_checkboxes:
+                    # Combine the checkbox value and remark into one value before inserting into the database
+                    if remark:
+                        combined_value = f"{value}!{remark}"
+                    else:
+                        combined_value = value
+                    cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)", [combined_value])
         return redirect('check_list_view')
     else:
         checklist_items = []
@@ -559,7 +571,18 @@ def checklist_form(request, id):
                 """, [id])
                 checklist_items = cursor.fetchall()
                 # print(checklist_items)
-
+            elif unity_check[3] == 3:
+                cursor.execute("""
+                               SELECT
+                                CAST(SPLIT_PART(unity_check_list.data, ',', 4) AS VARCHAR),
+                                CAST(SPLIT_PART(unity_check_list.data, ',', 5) AS VARCHAR),
+                                CAST(SPLIT_PART(unity_check_list.data, ',', 6) AS VARCHAR),
+                                CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','1','!',CURRENT_DATE),
+                                CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','2','!',CURRENT_DATE)
+                                FROM unity_check_list
+                                where unity_check_list.id = %s
+                            """, [id])
+                checklist_items = cursor.fetchall()
     return render(request, 'checklist.html', {'unity_check': unity_check, 'checklist_items': checklist_items})
 
 def check_list_view(request):
@@ -725,7 +748,42 @@ def checklist_report(request, id):
                     'valuecheck11': row[16],
                     'valuecheck12': row[17],
                 })
-        return render(request, 'checklistreport.html', {'report_data': report_data , 'unity_check':unity_check})
+        elif unity_check[3] == 3:
+            cursor.execute("""
+                            SELECT 
+                            unity_check_list.id, 
+                            department.department_name, 
+                            area.area_name, 
+                            unity_check_list.id_ch_list_type, 
+                            unity_check_list_type.name_ch_type, 
+                            date(unity_check_list.refdate),
+                            CAST(SPLIT_PART(unity_check_list.data, ',', 4) AS VARCHAR),
+							CAST(SPLIT_PART(unity_check_list.data, ',', 5) AS VARCHAR),
+							CAST(SPLIT_PART(unity_check_list.data, ',', 6) AS VARCHAR)
+                            FROM unity_check_list 
+                            LEFT OUTER JOIN department ON unity_check_list.id_department = department.id 
+                            LEFT OUTER JOIN area ON unity_check_list.id_area = area.id 
+                            LEFT OUTER JOIN unity_check_list_type ON unity_check_list.id_ch_list_type = unity_check_list_type.id 
+                            WHERE unity_check_list.id = %s and unity_check_list.id_ch_list_type = 3 """, [id])
+
+            # Process the rows and format the data as needed
+            report_data = cursor.fetchone()
+            cursor.execute("""
+                            select 
+                                        
+                                    CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) AS id_check_list,
+                                    CAST(SPLIT_PART(uclc .value, '!', 2) AS INTEGER) AS type_ch,
+                                    CAST(SPLIT_PART(uclc .value, '!', 3) AS INTEGER) AS month_ch,
+                                    CAST(SPLIT_PART(uclc .value, '!', 4) AS INTEGER) AS condition_ch,
+                                    CAST(SPLIT_PART(uclc .value, '!', 5) AS date) AS date_ch,
+                                    CAST(SPLIT_PART(uclc .value, '!', 6) AS varchar) AS remark
+                
+                                    from  unity_check_list_content  uclc 
+                                    where 
+                                    CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) = %s """, [id])
+            report_data_ch = cursor.fetchall()
+
+        return render(request, 'checklistreport.html', {'report_data': report_data , 'unity_check':unity_check,'report_data_ch':report_data_ch})
 
 def m_checklist_report(request, id):
     with connection.cursor() as cursor:
@@ -960,18 +1018,29 @@ def M_checklist_form(request, id):
 
 def M_login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        M_username = request.POST['username']
+        M_password = request.POST['password']
         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [username, password])
-            user_data = cursor.fetchone()
-        if user_data is not None:
+            cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [M_username, M_password])
+            M_user_data = cursor.fetchone()
+        if M_user_data is not None:
             # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
-            request.session['id_user_type'] = user_data[3]
-            request.session['username'] = user_data[1]# เก็บค่า id_user_type ใน session
-            return redirect('M_checklist_form')
+            request.session['M_id_user_type'] = M_user_data[3]
+            request.session['M_username'] = M_user_data[1]# เก็บค่า id_user_type ใน session
+            if 'next' in request.GET:
+                next_url = request.GET['next']
+                return redirect(next_url)
+            else:
+                return redirect('M_checklist_report')
         else:
             error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
             return render(request, 'M_login.html', {'error_message': error_message})
     return render(request, 'M_login.html')
+
+def M_logout_view(request):
+    if 'M_username' in request.session:
+        del request.session['M_username']
+    id = request.GET.get('id')  # รับ ID จากพารามิเตอร์
+    return redirect(f'/M_checklist_report/{id}/')
+

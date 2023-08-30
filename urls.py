@@ -32,6 +32,7 @@ urlpatterns = [
     path('userdelete/<int:user_id>/',views.userdelete, name='userdelete'),
     path('useredit/<int:user_id>/',views.edit_user_view, name='useredit'),
     path('logout/', views.logout_view, name='logout_view'),
+    path('M_logout/', views.M_logout_view, name='M_logout_view'),
     path('get_checkboxes/<int:check_list_type_id>/', views.get_checkboxes, name='get_checkboxes'),
     path('checklist_form/<int:id>/', views.checklist_form, name='checklist_form'),
     path('M_checklist_form/<int:id>/', views.M_checklist_form, name='M_checklist_form'),
