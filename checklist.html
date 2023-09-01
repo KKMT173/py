@@ -98,6 +98,25 @@
 
                 <br>
             {% endfor %}
+         {% elif unity_check.3 == 4 %}
+            <div class="col">
+              <br><br> <h4>{{ unity_check.4 }} </h4>
+        </div>
+        <div class="col">
+               <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+            <br><br>
+        </div>
+            {% for item in checklist_items %}
+                {% ifchanged item.2 %}
+                    <br>
+                    <h3>{{ item.2 }} </h3> <!-- Unity Name - Display only once -->
+                {% endifchanged %} <!-- Unity Name -->
+                    <label>
+                   &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.5 }}">
+                    {{ item.4 }} <!-- Detail Name -->
+                    </label>
+                <br>
+            {% endfor %}
         {% endif %}
         <input type="hidden" id="selected_checkboxes" name="selected_checkboxes" value="">
         <br>

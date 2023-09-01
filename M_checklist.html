@@ -21,67 +21,136 @@
 
     <form method="post" onsubmit="logSelectedCheckboxes()">
         {% csrf_token %}
-        <div class="col">
-              <br><br> <h4>{{ unity_check.4 }} </h4>
-        </div>
-        <div class="col">
-               <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
-            <br><br>
-        </div>
+
        {% if unity_check.3 == 1 %}
-        <br>
-            {% for item in checklist_items %}
-                {% ifchanged item.4 %}
-                    <h3>&nbsp;&nbsp;{{ item.4 }} </h3>
-                 <!-- Unity Name - Display only once -->
-                {% endifchanged %}
-                    {% ifchanged item.6 %}
-                        <h4> &nbsp;&nbsp;&nbsp;&nbsp;{{ item.6 }}</h4>
-                        <!-- Detail Name - Display only once per change -->
+            <div class="col">
+                  <br><br> <h4>{{ unity_check.4 }} </h4>
+            </div>
+            <div class="col">
+                   <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+                <br><br>
+            </div>
+            <br>
+                {% for item in checklist_items %}
+                    {% ifchanged item.4 %}
+                        <h3>&nbsp;&nbsp;{{ item.4 }} </h3>
+                     <!-- Unity Name - Display only once -->
                     {% endifchanged %}
-                        <label>
-                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
-                            {{ item.7 }} <!-- un_sub_num -->
-                        </label>
-                            <br>
-            {% endfor %}
+                        {% ifchanged item.6 %}
+                            <h4> &nbsp;&nbsp;&nbsp;&nbsp;{{ item.6 }}</h4>
+                            <!-- Detail Name - Display only once per change -->
+                        {% endifchanged %}
+                            <label>
+                               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
+                                {{ item.7 }} <!-- un_sub_num -->
+                            </label>
+                                <br>
+                {% endfor %}
 
         {% elif unity_check.3 == 2 %}
-            <h2>Checklist Items:</h2>
-            {% for item in checklist_items %}
-                {% ifchanged item.3 %}
+            <div class="col">
+              <br><br> <h4>{{ unity_check.4 }} </h4>
+            </div>
+            <div class="col">
+                   <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+                <br><br>
+            </div>
+                {% for item in checklist_items %}
+                    {% ifchanged item.3 %}
+                        <br>
+                        <h3>{{ item.3 }} รหัสเลขที่ :{% if item.2 %} {{ item.2 }} {% endif %}</h3> <!-- Unity Name - Display only once -->
+                    {% endifchanged %} <!-- Unity Name -->
+                        <label>
+                       &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
+                        {{ item.5 }} <!-- Detail Name -->
+                        </label>
                     <br>
-                    <h3>{{ item.3 }} รหัสเลขที่ :{% if item.2 %} {{ item.2 }} {% endif %}</h3> <!-- Unity Name - Display only once -->
-                {% endifchanged %} <!-- Unity Name -->
+                {% endfor %}
+        {% elif unity_check.3 == 3 %}
+             <div class="col">
+                  <br><br> <h4>{{ unity_check.4 }} </h4>
+            </div>
+            <div class="col">
+                   <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+                   <br><br>
+            </div>
+            <div class="col">
+                 {% for checklist in checklist_items %}
+                  <h4>Code : {{ checklist.0 }}&nbsp;&nbsp;&nbsp;&nbsp; ชนิดถังดับเพลิง : {{ checklist.1 }}&nbsp;&nbsp;&nbsp;&nbsp; ขนาด : {{ checklist.2 }}</h4>
+                       <br><br>
+                {% endfor %}
+             </div>
+                  {% for item3 in checklist_items %}
+                    <br>
+                    <h3>ยืนยันความสมบูรณ์ของถังดับเพลิง</h3>
+
                     <label>
-                   &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
-                    {{ item.5 }} <!-- Detail Name -->
+                        &nbsp;&nbsp; <input type="radio" name="checklist_item_sub" value="{{ item3.3 }}">
+                        ยืนยืน
+                    </label><br><br>
+
+                    <label>
+                        &nbsp;&nbsp; <input type="radio" name="checklist_item_sub" value="{{ item3.4 }}">
+                        ไม่ยืนยัน
+                        <input type="text" name="remark" id="remark" placeholder="หมายเหตุ">
                     </label>
-                <br>
-            {% endfor %}
-        {% endif %}
-        <input type="hidden" id="selected_checkboxes" name="selected_checkboxes" value="">
-        <br>
-        <input type="hidden" name="id" value="{{ unity_check.0 }}">
-        <input type="submit" value="Submit Checklist">
 
-    </form>
 
-    <script>
-        function logSelectedCheckboxes() {
-            var checkboxes = document.getElementsByName('checklist_item_sub');
-            var selectedCheckboxes = [];
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    selectedCheckboxes.push(checkboxes[i].value);
+                    <br>
+                {% endfor %}
+          {% elif unity_check.3 == 4 %}
+            <div class="col">
+                  <br><br> <h4>{{ unity_check.4 }} </h4>
+            </div>
+            <div class="col">
+                   <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+                <br><br>
+            </div>
+                {% for item in checklist_items %}
+                    {% ifchanged item.2 %}
+                        <br>
+                        <h3>{{ item.2 }} </h3> <!-- Unity Name - Display only once -->
+                    {% endifchanged %} <!-- Unity Name -->
+                        <label>
+                       &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.5 }}">
+                        {{ item.4 }} <!-- Detail Name -->
+                        </label>
+                    <br>
+                {% endfor %}
+            {% endif %}
+            <input type="hidden" id="selected_checkboxes" name="selected_checkboxes" value="">
+            <br>
+            <input type="submit" value="Submit Checklist">
+        </form>
+
+      <script>
+            function logSelectedCheckboxes() {
+                var checkboxes = document.getElementsByName('checklist_item_sub');
+                var selectedCheckboxes = [];
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked) {
+                        selectedCheckboxes.push(checkboxes[i].value);
+                    }
                 }
-            }
-            console.log('Selected Checkboxes:', selectedCheckboxes);
 
-            // Set the selected checkboxes to a hidden input field in the form
-            document.getElementById('selected_checkboxes').value = selectedCheckboxes.join(',');
-        }
-    </script>
+                // Get the value from the "remark" input field
+                var remark = document.getElementById('remark').value;
+
+                // If "remark" has a value, create a new radio button value and add it to the array
+                if (remark) {
+                    var newRadioValue = '{{ item.4 }}' + '!' + remark;
+                    selectedCheckboxes.push(newRadioValue);
+                } else {
+                    // If "remark" is empty, add only the radio button value
+                    selectedCheckboxes.push('{{ item.4 }}');
+                }
+
+                console.log('Selected Checkboxes:', selectedCheckboxes);
+
+                // Set the selected checkboxes to a hidden input field in the form
+                document.getElementById('selected_checkboxes').value = selectedCheckboxes.join(',');
+            }
+      </script>
 </body>
 {% else %}
     <!-- แสดงข้อความถ้ายังไม่ล็อกอิน -->

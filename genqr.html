@@ -176,6 +176,11 @@
                             <input type="text" name="textbox_item5" id="textbox_item5" placeholder="ขนาด">
                             <br><br>
                         </div>
+                    {% elif list_type.id_ch_li_type == 4 %}
+                        <div>
+                            <input type="text" name="textbox_item44" id="textbox_item44" placeholder="รหัสอุปกรณ์">
+                            <br><br>
+                        </div>
                     {% else %}
                         <div id="checkboxes">
                             <!-- Checkboxes will be populated here using JavaScript -->
@@ -190,6 +195,7 @@
                     const textboxItem3 = document.getElementById("textbox_item3");
                     const textboxItem4 = document.getElementById("textbox_item4");
                     const textboxItem5 = document.getElementById("textbox_item5");
+                    const textboxItem44 = document.getElementById("textbox_item44");
 
                     checkListTypeSelect.addEventListener("change", function() {
                         if (checkListTypeSelect.value === "3") {
@@ -197,12 +203,22 @@
                             textboxItem3.style.display = "block";
                             textboxItem4.style.display = "block";
                             textboxItem5.style.display = "block";
+                            textboxItem44.style.display = "none";
                             checkboxesContainer.style.display = "none";
+                        } else if (checkListTypeSelect.value === "4") {
+                            // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
+                            textboxItem3.style.display = "none";
+                            textboxItem4.style.display = "none";
+                            textboxItem5.style.display = "none";
+                            textboxItem44.style.display = "block";
+                            checkboxesContainer.style.display = "block";
+
                         } else {
                             // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
                             textboxItem3.style.display = "none";
                             textboxItem4.style.display = "none";
                             textboxItem5.style.display = "none";
+                            textboxItem44.style.display = "none";
                             checkboxesContainer.style.display = "block";
                         }
                     });
@@ -212,6 +228,7 @@
                             textboxItem3.style.display = "block";
                             textboxItem4.style.display = "block";
                             textboxItem5.style.display = "block";
+                            textboxItem44.style.display = "none";
                         checkboxesContainer.style.display = "none";
                     } else {
                         textboxItem3.style.display = "none";
@@ -363,7 +380,7 @@
         selectedType = checkListTypeSelect.value; // กำหนดค่า selectedType เมื่อผู้ใช้เลือกประเภท checklist
 
         // เพิ่มเงื่อนไขเช็ค selectedType เป็น "1" หรือ "2" เท่านั้น
-        if (selectedType === "1" || selectedType === "2") {
+        if (selectedType === "1" || selectedType === "2" ||selectedType === "4") {
             // Get the list of checkboxes for the selected type from Django view using AJAX
             fetch(`/get_checkboxes/${selectedType}/`)
                 .then(response => response.json())
