@@ -1,32 +1,69 @@
 import qrcode
+import hashlib
 import os
 from django.shortcuts import render, redirect
-from django.template import loader
 from django.conf import settings
 from io import BytesIO
 from django.http import HttpResponse,JsonResponse
-from django.db import connection,IntegrityError
+from django.db import connection,IntegrityError,connections
 from django.urls import reverse
 
-import json
+
+
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        md5_password = hashlib.md5(password.encode()).hexdigest().upper()
+
         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [username, password])
-            user_data = cursor.fetchone()
-        if user_data is not None:
-            # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
-            request.session['id_user_type'] = user_data[3]
-            request.session['username'] = user_data[1]# เก็บค่า id_user_type ใน session
-            return redirect('WebsmartunityQR')
-        else:
-            error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
+        with connections['default'].cursor() as cursor:
+            # ดึงข้อมูลผู้ใช้จากตาราง user_login
+            cursor.execute("SELECT * FROM user_login WHERE username = %s", [username])
+            user_login_data = cursor.fetchone()
+
+            if user_login_data is not None:
+                # หากมีผู้ใช้งานในตาราง user_login
+                # เช็ครหัสผ่านจากตาราง user_list
+                with connections['user_list'].cursor() as cursor_user_list:
+                    cursor_user_list.execute("SELECT * FROM user_list ul WHERE ul.id = %s AND ul.password = %s",
+                                             [username, md5_password])
+                    user_data = cursor_user_list.fetchone()
+
+                    if user_data is not None:
+                        # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
+                        request.session['id_user_type'] = user_login_data[3]
+                        request.session['username'] = user_data[0]
+                        request.session['department'] = user_data[6]
+                        return redirect('WebsmartunityQR')
+                    else:
+                        error_message = 'รหัสผ่านไม่ถูกต้อง'
+            else:
+                error_message = 'Username ไม่ถูกต้อง'
+
             return render(request, 'login.html', {'error_message': error_message})
+
     return render(request, 'login.html')
+
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         md5_password = hashlib.md5(password.encode()).hexdigest()
+#         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+#         with connection.cursor() as cursor:
+#             cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [username, password])
+#             user_data = cursor.fetchone()
+#         if user_data is not None:
+#             # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
+#             request.session['id_user_type'] = user_data[3]
+#             request.session['username'] = user_data[1]# เก็บค่า id_user_type ใน session
+#             return redirect('WebsmartunityQR')
+#         else:
+#             error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
+#             return render(request, 'login.html', {'error_message': error_message})
+#     return render(request, 'login.html')
 
 # def WebsmartunityQR(request):
 # #     # เช็คว่าผู้ใช้เข้าสู่ระบบแล้วหรือไม่ หากยังไม่ได้เข้าสู่ระบบให้เปลี่ยนเป็นการ redirect ไปหน้าเข้าสู่ระบบ
@@ -191,15 +228,29 @@ def WebsmartunityQR(request):
 
     return render(request, 'master.html',{'listchecklists': check_list_data})
 
+# def add_user(request):
+#
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         user_type_id = request.POST['user_type']
+#         with connection.cursor() as cursor:
+#             cursor.execute("INSERT INTO user_login (username, password, id_user_type) VALUES (%s, %s, %s)",
+#                            [username, password, user_type_id])
+#         return redirect('userlist')
+#     with connection.cursor() as cursor:
+#         cursor.execute("SELECT * FROM user_type")
+#         user_types = cursor.fetchall()
+#     return render(request, 'adduser.html', {'user_types': user_types})
+
 def add_user(request):
 
     if request.method == 'POST':
         username = request.POST['username']
-        password = request.POST['password']
         user_type_id = request.POST['user_type']
         with connection.cursor() as cursor:
-            cursor.execute("INSERT INTO user_login (username, password, id_user_type) VALUES (%s, %s, %s)",
-                           [username, password, user_type_id])
+            cursor.execute("INSERT INTO user_login (username, id_user_type) VALUES (%s, %s)",
+                           [username, user_type_id])
         return redirect('userlist')
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM user_type")
@@ -207,22 +258,99 @@ def add_user(request):
     return render(request, 'adduser.html', {'user_types': user_types})
 
 def user_list_view(request):
-    # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
-    with connection.cursor() as cursor:
-        cursor.execute("select * from user_login left outer join user_type on user_login.id_user_type = user_type.id ")
-        user_data = cursor.fetchall()
-        print(user_data)
-    return render(request, 'userlist.html', {'users': user_data})
+    # เชื่อมต่อกับฐานข้อมูล user_login และดึงข้อมูลผู้ใช้
+    with connections['default'].cursor() as cursor_user_login:
+        cursor_user_login.execute("""
+           select ulo.id, ulo.username, ut.name_user_type 
+           from user_login ulo 
+           left outer join user_type ut  on ulo.id_user_type = ut.id
+        """)
+        user_login_data = cursor_user_login.fetchall()
+
+    # เชื่อมต่อกับฐานข้อมูล user_list และดึงข้อมูลผู้ใช้
+    with connections['user_list'].cursor() as cursor_user_list:
+        cursor_user_list.execute("""
+            SELECT ul.id, ul.password, ul.user_index, dc.department_name, sc.section_name, pc.position_name, 
+                   gc.group_name, us.status_name, ul.name_th, concat(ul.firstname, ' ', ul.surname) as full_name, ul.department_index
+            FROM user_list AS ul
+            LEFT OUTER JOIN department_control AS dc ON ul.department_index = dc.department_index
+            LEFT OUTER JOIN section_control AS sc ON ul.section_index = sc.section_index
+            LEFT OUTER JOIN position_control AS pc ON ul.position_index = pc.position_index
+            LEFT OUTER JOIN group_control AS gc ON ul.group_index = gc.group_index
+            LEFT OUTER JOIN user_status AS us ON ul.status_index = us.status_index
+            WHERE ul.status_index = 1 AND ul.department_index = %s
+        """, [request.session['department']])
+        user_list_data = cursor_user_list.fetchall()
+    # สร้างรายการแบบดิกชันารีของข้อมูลผู้ใช้จาก user_login
+
+    # รวมข้อมูลจากทั้งสองแหล่ง
+    combined_data = []
+    for user_login_row in user_login_data:
+        for user_list_row in user_list_data:
+            if user_login_row[1] == user_list_row[0]:
+                combined_data.append({
+                    'id': user_login_row[0],
+                    'username': user_login_row[1],
+                    'user_type': user_login_row[2],
+                    'user_index': user_list_row[2],
+                    'department_name': user_list_row[3],
+                    'section_name': user_list_row[4],
+                    'position_name': user_list_row[5],
+                    'group_name': user_list_row[6],
+                    'status_name': user_list_row[7],
+                    'name_th': user_list_row[8],
+                    'full_name': user_list_row[9]
+                })
+    # print(user_login_data)
+    # print(user_list_data)
+    # ส่งข้อมูลไปยังเทมเพลตสำหรับการแสดงผล
+    return render(request, 'userlist.html', {'users': combined_data})
+
+# def user_list_view(request):
+#     # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+#     with connections['default'].cursor() as cursor_user_login:
+#         cursor_user_login.execute("select ul.id,ul.username,ut.name_user_type from user_login ul left outer join user_type ut  on ul.id_user_type = ut.id")
+#         user_login_data = cursor_user_login.fetchall()
+#
+#     # เชื่อมต่อกับฐานข้อมูล user_list
+#     with connections['user_list'].cursor() as cursor_user_list:
+#         cursor_user_list.execute("""
+#             SELECT ul.id, ul.password, ul.user_index, dc.department_name, sc.section_name, pc.position_name,
+#                    gc.group_name, us.status_name, ul.name_th, concat(ul.firstname, ' ', ul.surname) as full_name
+#             FROM user_list AS ul
+#             LEFT OUTER JOIN department_control AS dc ON ul.department_index = dc.department_index
+#             LEFT OUTER JOIN section_control AS sc ON ul.section_index = sc.section_index
+#             LEFT OUTER JOIN position_control AS pc ON ul.position_index = pc.position_index
+#             LEFT OUTER JOIN group_control AS gc ON ul.group_index = gc.group_index
+#             LEFT OUTER JOIN user_status AS us ON ul.status_index = us.status_index
+#             WHERE ul.status_index = 1
+#         """)
+#         user_list_data = cursor_user_list.fetchall()
+#
+#     # ทำการรวมข้อมูลจาก user_login และ user_list ตามความเหมาะสม
+#     combined_data = []
+#     for user_login_row in user_login_data:
+#         for user_list_row in user_list_data:
+#             if user_login_row[0] == user_list_row[0]:
+#                 combined_data.append({
+#                     'username': user_login_row[1],
+#                     'user_type': user_list_row[2],
+#                     # เพิ่มข้อมูลอื่น ๆ ตามต้องการ
+#                 })
+#
+#     # ส่งข้อมูลไปยังเทมเพลตสำหรับการแสดงผล
+#     return render(request, 'userlist.html', {'users': combined_data})
+
 
 def edit_user_view(request, user_id):
     if request.method == 'POST':
         username = request.POST['username']
-        password = request.POST['password']
+        # password = request.POST['password']
         user_type_id = request.POST['user_type']
         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและแก้ไขข้อมูลผู้ใช้งาน
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE user_login SET username = %s, password = %s, id_user_type = %s WHERE id = %s",
-                           [username, password, user_type_id,user_id])
+            cursor.execute("UPDATE user_login SET username = %s, id_user_type = %s WHERE id = %s",
+                           [username, user_type_id,user_id])
         # ดำเนินการตามที่ต้องการ เช่น เปลี่ยนเส้นทางไปยังหน้าแสดงรายการผู้ใช้งาน
         return redirect('userlist')
     with connection.cursor() as cursor:
@@ -394,7 +522,7 @@ def generate_qr_code(request):
             print("Error inserting data:", e)
 
     else:
-        return render(request, 'genqr.html', {'areas': get_areas(), 'departments': get_departments(),'check_list_types': get_unity_check_list_type()})
+        return render(request, 'genqr.html', {'areas': get_areas(), 'departments': get_departments(),'check_list_types': get_unity_check_list_type(),'userlists' : get_userlist(request) })
 
 # สมมติว่า check_list_type_id เป็นชนิดข้อมูลแบบ int หรือตัวเลข
 def get_checkboxes(request, check_list_type_id):
@@ -465,14 +593,35 @@ def get_checkboxes(request, check_list_type_id):
                 checkboxes.append(checkbox)
     return JsonResponse(checkboxes, safe=False)
 
+def get_userlist(request):
+    # เช็ครหัสผ่านจากตาราง user_list
+                with connections['user_list'].cursor() as cursor_user_list:
+                    cursor_user_list.execute("""select concat(ul.firstname, ' ', ul.surname) as full_name,* 
+                                                from user_list ul where department_index = %s and status_index = 1"""
+                                             ,[request.session['department']])
+                    userlists = cursor_user_list.fetchall()
+                return userlists
+
+# def get_departments():
+#     with connection.cursor() as cursor:
+#         cursor.execute("SELECT * FROM department where id <> 36")
+#         departments = []
+#         for row in cursor.fetchall():
+#             department = {
+#                 'id': row[0],
+#                 'name': row[1]
+#             }
+#             departments.append(department)
+#     return departments
+
 def get_departments():
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM department where id <> 36")
+    with connections['user_list'].cursor() as cursor_user_list:
+        cursor_user_list.execute("select * from department_control where department_index <> 36")
         departments = []
-        for row in cursor.fetchall():
+        for row in cursor_user_list.fetchall():
             department = {
-                'id': row[0],
-                'name': row[1]
+                'id': row[1],
+                'name': row[0]
             }
             departments.append(department)
     return departments
@@ -514,8 +663,9 @@ def get_unity_check_list_type():
     return check_list_types
 
 def logout_view(request):
-    if 'username' in request.session:
-        del request.session['username']
+    del request.session['username']
+    del request.session['id_user_type']
+    del request.session['department']
     return redirect('/login')
 
 def checklist_form(request, id):
@@ -790,54 +940,65 @@ def checklist_report(request, id):
                 })
         elif unity_check[3] == 4:
             cursor.execute("""select 
-                                ucld.id_un_ch_list,
-        						ui.unity_name,
-        						uid.detail_name,
-        						CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
-                                CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck1,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck2,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck3,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck4,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck5
+                                    ucld.id_un_ch_list,
+                                    ui.unity_name,
+                                    uid.detail_name,
+            						CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                                    CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck1,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck2,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck3,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck4,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck5,
+                					MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck1,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck2,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck3,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck4,
+                                    MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck5
 
-                            from unity_item ui
-                            left outer join unity_item_detail uid on ui.id = uid.id_unity_item
-                            left outer join unity_check_list_detail ucld on ui.id =  CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) and ucld.id_un_ch_list = %s
-                            LEFT OUTER JOIN unity_check_list_content  uclc ON  CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',uid.id,'!','1') = uclc.value and DATE_PART('month', uclc.ref_date) = DATE_PART('month', current_date)
+                                    from unity_item ui
+                                    left outer join unity_item_detail uid on ui.id = uid.id_unity_item
+                                    left outer join unity_check_list_detail ucld on ui.id =  CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) and ucld.id_un_ch_list = %s
+                                    LEFT OUTER JOIN unity_check_list_content  uclc ON  CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',uid.id,'!','1') = split_part(uclc.value, '!', 1) || '!' || split_part(uclc.value, '!', 2) || '!' || split_part(uclc.value, '!', 3) || '!' ||split_part(uclc.value, '!', 4) || '!' ||split_part(uclc.value, '!', 5)  and DATE_PART('month', uclc.ref_date) = DATE_PART('month', current_date)
 
-                            where 
-                                ui.unity_item_type = 4 
-                            GROUP BY 
-                                ui.unity_name,
-                                uid.detail_name,
-                                ucld.check_list,
-                                uclc.value,
-                                ui.id,
-                                ucld.id,
-                                uclc.value,
-                                ucld.check_list,
-                                header_check_list,
-                                ucld.check_list,
-                                uid.id
-                            order by
-                                uid.id_unity_item""", [id])
+                                    where 
+                                            ui.unity_item_type = 4 
+                                    GROUP BY 
+                                            ui.unity_name,
+                                            uid.detail_name,
+                                            ucld.check_list,
+                                            uclc.value,
+                                            ui.id,
+                                            ucld.id,
+                                            uclc.value,
+                                            ucld.check_list,
+                                            header_check_list,
+                                            ucld.check_list,
+                                            uid.id
+                                            order by
+                                            uid.id_unity_item
+                            				""", [id])
 
             rows = cursor.fetchall()
 
             report_data = []
 
             for row in rows:
-                report_data.append({
-                    'id': row[0],
-                    'Head': row[1],
-                    'subhead': row[2],
-                    'valuecheck1': row[5],
-                    'valuecheck2': row[6],
-                    'valuecheck3': row[7],
-                    'valuecheck4': row[8],
-                    'valuecheck5': row[9],
-                })
+                    report_data.append({
+                        'id': row[0],
+                        'Head': row[1],
+                        'subhead': row[2],
+                        'valuecheck1': row[5],
+                        'valuecheck2': row[6],
+                        'valuecheck3': row[7],
+                        'valuecheck4': row[8],
+                        'valuecheck5': row[9],
+                        'user_check1': row[10],
+                        'user_check2': row[11],
+                        'user_check3': row[12],
+                        'user_check4': row[13],
+                        'user_check5': row[14],
+                    })
         elif unity_check[3] == 3:
             cursor.execute("""
                             SELECT 
@@ -1033,38 +1194,46 @@ def m_checklist_report(request, id):
                 })
         elif unity_check[3] == 4:
             cursor.execute("""select 
-                                ucld.id_un_ch_list,
-        						ui.unity_name,
-        						uid.detail_name,
-        						CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
-                                CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck1,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck2,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck3,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck4,
-        						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck5
+                                            ucld.id_un_ch_list,
+                    						ui.unity_name,
+                    						uid.detail_name,
+                    						CAST(SPLIT_PART(ucld.check_list, '!', 1) AS INTEGER) AS type_check_list,
+                                            CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) AS header_check_list,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck1,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck2,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck3,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck4,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 5) AS INTEGER) END) AS valuecheck5,
+											MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '1' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck1,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '2' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck2,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '3' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck3,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '4' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck4,
+                    						MAX(CASE WHEN to_char(uclc.ref_date, 'W') = '5' THEN CAST(SPLIT_PART(uclc.value, '!', 6) AS varchar) END) AS usercheck5
+                                        
+                                        from unity_item ui
+                                        left outer join unity_item_detail uid on ui.id = uid.id_unity_item
+                                        left outer join unity_check_list_detail ucld on ui.id =  CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) and ucld.id_un_ch_list = %s
+                                        LEFT OUTER JOIN unity_check_list_content  uclc ON  CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',uid.id,'!','1') = split_part(uclc.value, '!', 1) || '!' || split_part(uclc.value, '!', 2) || '!' || split_part(uclc.value, '!', 3) || '!' ||split_part(uclc.value, '!', 4) || '!' ||split_part(uclc.value, '!', 5)  and DATE_PART('month', uclc.ref_date) = DATE_PART('month', current_date)
 
-                            from unity_item ui
-                            left outer join unity_item_detail uid on ui.id = uid.id_unity_item
-                            left outer join unity_check_list_detail ucld on ui.id =  CAST(SPLIT_PART(ucld.check_list, '!', 2) AS INTEGER) and ucld.id_un_ch_list = %s
-                            LEFT OUTER JOIN unity_check_list_content  uclc ON  CONCAT (ucld.id_un_ch_list,'!',ucld.check_list,'!',uid.id,'!','1') = uclc.value and DATE_PART('month', uclc.ref_date) = DATE_PART('month', current_date)
+                                        where 
+                                            ui.unity_item_type = 4 
+                                        GROUP BY 
+                                            ui.unity_name,
+                                            uid.detail_name,
+                                            ucld.check_list,
+                                            uclc.value,
+                                            ui.id,
+                                            ucld.id,
+                                            uclc.value,
+                                            ucld.check_list,
+                                            header_check_list,
+                                            ucld.check_list,
+                                            uid.id
+                                        order by
+                                            uid.id_unity_item
 
-                            where 
-                                ui.unity_item_type = 4 
-                            GROUP BY 
-                                ui.unity_name,
-                                uid.detail_name,
-                                ucld.check_list,
-                                uclc.value,
-                                ui.id,
-                                ucld.id,
-                                uclc.value,
-                                ucld.check_list,
-                                header_check_list,
-                                ucld.check_list,
-                                uid.id
-                            order by
-                                uid.id_unity_item""", [id])
+
+            							""", [id])
 
             rows = cursor.fetchall()
 
@@ -1080,6 +1249,11 @@ def m_checklist_report(request, id):
                         'valuecheck3': row[7],
                         'valuecheck4': row[8],
                         'valuecheck5': row[9],
+                        'user_check1': row[10],
+                        'user_check2': row[11],
+                        'user_check3': row[12],
+                        'user_check4': row[13],
+                        'user_check5': row[14],
                     })
         elif unity_check[3] == 3:
             cursor.execute("""
@@ -1225,31 +1399,70 @@ def M_checklist_form(request, id):
                 checklist_items = cursor.fetchall()
         return render(request, 'M_checklist.html', {'unity_check': unity_check, 'checklist_items': checklist_items})
 
+# def M_login_view(request):
+#     if request.method == 'POST':
+#         M_username = request.POST['username']
+#         M_password = request.POST['password']
+#         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
+#         with connection.cursor() as cursor:
+#             cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [M_username, M_password])
+#             M_user_data = cursor.fetchone()
+#         if M_user_data is not None:
+#             # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
+#             request.session['M_id_user_type'] = M_user_data[3]
+#             request.session['M_username'] = M_user_data[1]# เก็บค่า id_user_type ใน session
+#             if 'next' in request.GET:
+#                 next_url = request.GET['next']
+#                 return redirect(next_url)
+#             else:
+#                 return redirect('M_checklist_report')
+#         else:
+#             error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
+#             return render(request, 'M_login.html', {'error_message': error_message})
+#     return render(request, 'M_login.html')
+
 def M_login_view(request):
     if request.method == 'POST':
         M_username = request.POST['username']
         M_password = request.POST['password']
+        md5_password = hashlib.md5(M_password.encode()).hexdigest().upper()
+
         # ดำเนินการที่จำเป็นสำหรับการเชื่อมต่อกับฐานข้อมูลและดึงข้อมูลผู้ใช้งาน
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM user_login WHERE username = %s AND password = %s", [M_username, M_password])
-            M_user_data = cursor.fetchone()
-        if M_user_data is not None:
-            # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
-            request.session['M_id_user_type'] = M_user_data[3]
-            request.session['M_username'] = M_user_data[1]# เก็บค่า id_user_type ใน session
-            if 'next' in request.GET:
-                next_url = request.GET['next']
-                return redirect(next_url)
+        with connections['default'].cursor() as cursor:
+            # ดึงข้อมูลผู้ใช้จากตาราง user_login
+            cursor.execute("SELECT * FROM user_login WHERE username = %s", [M_username])
+            M_user_login_data = cursor.fetchone()
+
+            if M_user_login_data is not None:
+                # หากมีผู้ใช้งานในตาราง user_login
+                # เช็ครหัสผ่านจากตาราง user_list
+                with connections['user_list'].cursor() as cursor_user_list:
+                    cursor_user_list.execute("SELECT * FROM user_list ul WHERE ul.id = %s AND ul.password = %s",
+                                             [M_username, md5_password])
+                    M_user_data = cursor_user_list.fetchone()
+
+                    if M_user_data is not None:
+                        # การยืนยันสำเร็จ ดำเนินการตามที่ต้องการ เช่น เก็บข้อมูลผู้ใช้งานใน session และเปลี่ยนเส้นทางไปยังหน้าหลังเข้าสู่ระบบ
+                        request.session['M_id_user_type'] = M_user_login_data[3]
+                        request.session['M_username'] = M_user_data[0]
+                        if 'next' in request.GET:
+                            next_url = request.GET['next']
+                            return redirect(next_url)
+                        else:
+                            return redirect('M_checklist_report')
+                    else:
+                        error_message = 'รหัสผ่านไม่ถูกต้อง'
             else:
-                return redirect('M_checklist_report')
-        else:
-            error_message = 'กรุณาตรวจสอบ Username เเละ Password ให้ถูกต้อง'
+                error_message = 'Username ไม่ถูกต้อง'
+
             return render(request, 'M_login.html', {'error_message': error_message})
+
     return render(request, 'M_login.html')
 
 def M_logout_view(request):
-    if 'M_username' in request.session:
-        del request.session['M_username']
+    del request.session['M_id_user_type']
+    del request.session['M_department']
+    del request.session['M_username']
     id = request.GET.get('id')  # รับ ID จากพารามิเตอร์
     return redirect(f'/M_checklist_report/{id}/')
 

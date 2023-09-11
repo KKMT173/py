@@ -93,6 +93,14 @@ DATABASES = {
         'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5433',
+    },
+    'user_list': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'user_list',  # ชื่อฐานข้อมูลของคุณ
+        'USER': 'postgres',  # ชื่อผู้ใช้ของฐานข้อมูล user_list
+        'PASSWORD': 'postgres',  # รหัสผ่านของฐานข้อมูล user_list
+        'HOST': 'localhost',  # หรือโฮสต์อื่น ๆ ที่คุณใช้
+        'PORT': '5433',  # หรือพอร์ตที่คุณใช้
     }
 }
 
