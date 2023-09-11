@@ -8,14 +8,19 @@
     {% include 'header.html' %}
 </head>
 <body>
+
     <div class="text-center">
             <br><h3>เพิ่มผู้ใช้งานในระบบ</h3><br><br>
     </div>
     <form method="post">
         {% csrf_token %}
         <div class="text-center">
-            <label for="username">กรอกรหัสพนักงาน :</label>
+            <label for="username">Username:</label>
             <input type="text" id="username" name="username"><br><br>
+        </div>
+        <div class="text-center">
+            <label for="password">Password :</label>
+            <input type="password" id="password" name="password"><br><br>
         </div>
          <div class="text-center">
                 <label for="user_type">User Type:</label>
@@ -25,6 +30,7 @@
                     {% endfor %}
                 </select>
          </div>
+
         <div class="text-center">
             <br><input type="submit" value="Add User">
         </div>

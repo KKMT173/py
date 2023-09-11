@@ -22,30 +22,26 @@
                 <tr>
                     <th>ID</th>
                     <th class="text-center">Edit/Delete User</th>
-                    <th>รหัสพนักงาน</th>
                     <th>Username</th>
-                    <th>Department</th>
-                    <th>Section</th>
+                    <th>Password</th>
                     <th>User Type</th>
                 </tr>
             </thead>
             <tbody id="tr">
                      {% for user in users %}
                 <tr>
-                    <td>{{ user.id }}</td>
+                    <td>{{ user.0 }}</td>
                     <td class ="text-center">
-                        <a href="{% url 'useredit' user.id %}" class="btn btn-link">
+                        <a href="{% url 'useredit' user.0 %}" class="btn btn-link">
                             <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
                         </a>
-                        <a href="{% url 'userdelete' user.id %}" class="btn btn-link" onclick="return confirm('ยืนยันการลบผู้ใช้งาน')">
+                        <a href="{% url 'userdelete' user.0 %}" class="btn btn-link" onclick="return confirm('ยืนยันการลบผู้ใช้งาน')">
                             <img src="{% static 'pic/del.PNG' %}" class="rounded" alt="edit" width="25px" height="25px">
                         </a>
                     </td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.full_name }}</td>
-                    <td>{{ user.department_name }}</td>
-                    <td>{{ user.section_name }}</td>
-                    <td>{{ user.user_type }}</td>
+                    <td>{{ user.1 }}</td>
+                    <td>{{ user.2 }}</td>
+                    <td>{{ user.10 }}</td>
                 </tr>
                 {% endfor %}
 

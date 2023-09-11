@@ -7,7 +7,6 @@
     {% bootstrap_css %}
     {% include 'header.html' %}
 
-
     <style>
         /* สไตล์สำหรับ checkbox */
         input[type="checkbox"] {
@@ -31,6 +30,12 @@
         /* สไตล์สำหรับ line break */
         br {
             line-height: 24px; /* ความสูงของบรรทัดใหม่ */
+        }
+        #textbox_item3,
+        #textbox_item4,
+        #textbox_item5,
+        #textbox_item44 {
+            display: none;
         }
     </style>
 
@@ -138,7 +143,8 @@
 
         </script>
         <br>
-        <h1>QR Code Checklist</h1><br>
+        <h1>QR Code Checklist </h1><br>
+
         <form method="post" action="{% url 'generate_qr_code' %}" >
             {% csrf_token %}
             <label for="check_list_type">ประเภทแบบฟอร์ม :</label>
@@ -148,7 +154,6 @@
                 {% endfor %}
             </select>
             <br><br>
-
             <label for="department">Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</label>
             <select id="department" name="department" required>
                 {% for dept in departments %}
@@ -162,25 +167,44 @@
                     {% endfor %}
                 </select>
             <br><br>
+            <label for="name_finder1">Inspected by:</label>
+                <select name="name_finder1" id="name_finder1">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
+            <label for="name_finder2">Checked by:</label>
+                <select name="name_finder2" id="name_finder2">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
+            <label for="name_finder3">Approved by:</label>
+                <select name="name_finder3" id="name_finder3">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
+            <br><br>
                {% for list_type in check_list_types %}
-                    {% if list_type.id_ch_li_type == 3 %}
+                    {% if list_type.id_ch_li_type == 3  %}
                         <div>
                             <input type="text" name="textbox_item3" id="textbox_item3" placeholder="รหัสอุปกรณ์">
-                            <br><br>
                         </div>
                         <div>
                             <input type="text" name="textbox_item4" id="textbox_item4" placeholder="ชนิดถังดับเพลิง">
-                            <br><br>
                         </div>
                         <div>
                             <input type="text" name="textbox_item5" id="textbox_item5" placeholder="ขนาด">
-                            <br><br>
                         </div>
                     {% elif list_type.id_ch_li_type == 4 %}
                         <div>
                             <input type="text" name="textbox_item44" id="textbox_item44" placeholder="รหัสอุปกรณ์">
-                            <br><br>
                         </div>
+
                     {% else %}
                         <div id="checkboxes">
                             <!-- Checkboxes will be populated here using JavaScript -->
@@ -212,7 +236,6 @@
                             textboxItem5.style.display = "none";
                             textboxItem44.style.display = "block";
                             checkboxesContainer.style.display = "block";
-
                         } else {
                             // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
                             textboxItem3.style.display = "none";
@@ -222,7 +245,6 @@
                             checkboxesContainer.style.display = "block";
                         }
                     });
-
                     // ให้กำหนดสถานะเริ่มต้นเมื่อโหลดหน้าเว็บ
                     if (checkListTypeSelect.value === "3") {
                             textboxItem3.style.display = "block";

@@ -167,46 +167,97 @@
             </tbody>
         </table>
     {% elif unity_check.3 == 4 %}
-    <label>
-            {{ unity_check.4 }}
-            <br><br>
-            รหัสอุปกรณ์ : {{ unity_check.6 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
-    </label>
-        <br><br>
-    <table class="table">
-             <thead>
-                    <tr>
-                        <th>ชื่ออุปกรณ์</th>
-                        <th>รายละเอียดการเช็ค</th>
-                        <th>Week1</th>
-                        <th>Week2</th>
-                        <th>Week3</th>
-                        <th>Week4</th>
-                        <th>WeeK5</th>
+            <div class="col">
+                    {{ unity_check.4 }}
+                    <br><br>
+             </div>
+            <div class="col">
+                    รหัสอุปกรณ์ : {{ unity_check.6 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}
+                 <br><br>
+             </div>
+            <table class="table">
+                     <thead>
+                            <tr>
+                                <th>ชื่ออุปกรณ์</th>
+                                <th>รายละเอียดการเช็ค</th>
+                                <th>Week1</th>
+                                <th>Week2</th>
+                                <th>Week3</th>
+                                <th>Week4</th>
+                                <th>Week5</th>
 
-                    </tr>
-             </thead>
-            <tbody id="tr4">
-                {% for item in report_data %}
-                <tr>
-                    <td>
-                        {% ifchanged item.Head %}
-                            {{ item.Head }}
-                        {% endifchanged %}
-                    </td>
-                    <td>{{ item.subhead }}</td>
-                    <td>{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                    <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                    <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                    <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                    <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-
-                    <!-- เพิ่มคอลัมน์สำหรับ Value 3 ถึง Value 12 ตามต้องการ -->
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+                            </tr>
+                     </thead>
+                     <tbody id="tr4">
+                         {% for item in report_data %}
+                            <tr>
+                                <td>
+                                    {% ifchanged item.Head %}
+                                        {{ item.Head }}
+                                    {% endifchanged %}
+                                </td>
+                                <td>{{ item.subhead }}</td>
+                                <td>
+                                    {% if item.valuecheck1 %}
+                                        <span class="checkmark">&#10004;</span>
+                                    {% endif %}
+                                </td>
+                                <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            </tr>
+                         {% endfor %}
+                     </tbody>
+                     <tbody id="tr41">
+                         {% for ch in report_data %}
+                             {% ifchanged ch.id %}
+                             <tr>
+                                    <td></td>
+                                    <td>
+                                           <h5>Inspected by Safety Officer</h5>
+                                    </td>
+                                    <td>
+                                        {% ifchanged ch.user_check1 %}
+                                            {% if ch.user_check1 %}
+                                                {{ ch.user_check1 }}
+                                            {% endif %}
+                                        {% endifchanged %}
+                                    </td>
+                                    <td>
+                                        {% ifchanged ch.user_check2 %}
+                                            {% if ch.user_check2 %}
+                                                {{ ch.user_check2 }}
+                                            {% endif %}
+                                        {% endifchanged %}
+                                    </td>
+                                    <td>
+                                        {% ifchanged ch.user_check3 %}
+                                            {% if ch.user_check3 %}
+                                                {{ ch.user_check3 }}
+                                            {% endif %}
+                                        {% endifchanged %}
+                                    </td>
+                                    <td>
+                                        {% ifchanged ch.user_check4 %}
+                                            {% if ch.user_check4 %}
+                                                {{ ch.user_check4 }}
+                                            {% endif %}
+                                        {% endifchanged %}
+                                    </td>
+                                    <td>
+                                        {% ifchanged ch.user_check5 %}
+                                            {% if ch.user_check5 %}
+                                                {{ ch.user_check5 }}
+                                            {% endif %}
+                                        {% endifchanged %}
+                                    </td>
+                             </tr>
+                             {% endifchanged %}
+                         {% endfor %}
+                    </tbody>
+            </table>
+        {% endif %}
 </body>
 
 </html>
