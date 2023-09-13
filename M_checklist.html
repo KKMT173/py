@@ -14,38 +14,41 @@
         }
     </style>
 </head>
+
 <body>
     <div class="col">
             <img src="{% static 'pic/P1.JPG' %}" class="rounded" alt="nidec" width="160px" height="85px"> <br><br>
      </div>
 
     <form method="post" onsubmit="logSelectedCheckboxes()">
-        {% csrf_token %}
+
+
 
        {% if unity_check.3 == 1 %}
-            <div class="col">
-                  <br><br> <h4>{{ unity_check.4 }} </h4>
-            </div>
-            <div class="col">
-                   <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
-                <br><br>
-            </div>
-            <br>
-                {% for item in checklist_items %}
-                    {% ifchanged item.4 %}
-                        <h3>&nbsp;&nbsp;{{ item.4 }} </h3>
-                     <!-- Unity Name - Display only once -->
-                    {% endifchanged %}
-                        {% ifchanged item.6 %}
-                            <h4> &nbsp;&nbsp;&nbsp;&nbsp;{{ item.6 }}</h4>
-                            <!-- Detail Name - Display only once per change -->
+            {% if request.session.M_user_index == unity_check.7 %}
+                <div class="col">
+                      <br><br> <h4>{{ unity_check.4 }} </h4>
+                </div>
+                <div class="col">
+                       <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
+                    <br><br>
+                </div>
+                <br>
+                    {% for item in checklist_items %}
+                        {% ifchanged item.4 %}
+                            <h3>&nbsp;&nbsp;{{ item.4 }} </h3>
+                         <!-- Unity Name - Display only once -->
                         {% endifchanged %}
-                            <label>
-                               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
-                                {{ item.7 }} <!-- un_sub_num -->
-                            </label>
-                                <br>
-                {% endfor %}
+                            {% ifchanged item.6 %}
+                                <h4> &nbsp;&nbsp;&nbsp;&nbsp;{{ item.6 }}</h4>
+                                <!-- Detail Name - Display only once per change -->
+                            {% endifchanged %}
+                                <label>
+                                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
+                                    {{ item.7 }} <!-- un_sub_num -->
+                                </label>
+                                    <br>
+                    {% endfor %}
 
         {% elif unity_check.3 == 2 %}
             <div class="col">
@@ -67,7 +70,7 @@
                     <br>
                 {% endfor %}
         {% elif unity_check.3 == 3 %}
-             <div class="col">
+            <div class="col">
                   <br><br> <h4>{{ unity_check.4 }} </h4>
             </div>
             <div class="col">
@@ -94,7 +97,6 @@
                         ไม่ยืนยัน
                         <input type="text" name="remark" id="remark" placeholder="หมายเหตุ">
                     </label>
-
 
                     <br>
                 {% endfor %}
@@ -152,6 +154,16 @@
             }
       </script>
 </body>
+            {% else %}
+                <script>
+                        // แสดง confirm box เมื่อหน้านี้ถูกเรียกใช้
+                        window.onload = function () {
+                            alert("คุณไม่มีสิทธิ์ในการตรวจสอบ");
+                             window.location.href = "{% url 'M_checklist_report' unity_check.0 %}";
+                        };
+                </script>
+            {% endif %}
+
 {% else %}
     <!-- แสดงข้อความถ้ายังไม่ล็อกอิน -->
     <a href="{% url 'M_login' %}?next={% url 'M_checklist_form' unity_check.0 %}">เข้าสู่ระบบ</a>

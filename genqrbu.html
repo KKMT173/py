@@ -24,7 +24,7 @@
         }
         /* สไตล์สำหรับ sub label */
         #checkboxes {
-            font-size: 20px;
+            font-size: 24px;
         }
 
         /* สไตล์สำหรับ line break */
@@ -36,9 +36,6 @@
         #textbox_item5,
         #textbox_item44 {
             display: none;
-        }
-        .margin-bottom {
-            margin-bottom: 20px; /* เพิ่มช่องว่างด้านล่าง 20px */
         }
     </style>
 
@@ -170,65 +167,34 @@
                     {% endfor %}
                 </select>
             <br><br>
-            <label for="name_finder1" id="inspected_by_label" style="display: none;">Inspected by:</label>
-            <select name="name_finder1" id="name_finder1" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="name_finder2" id="checked_by_label" style="display: none;">Checked by:</label>
-            <select name="name_finder2" id="name_finder2" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="name_finder3" id="approved_by_label" style="display: none;">Approved by:</label>
-            <select name="name_finder3" id="name_finder3" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        const checkListTypeSelect = document.getElementById("check_list_type");
-                        const inspectedByLabel = document.getElementById("inspected_by_label");
-                        const checkedByLabel = document.getElementById("checked_by_label");
-                        const approvedByLabel = document.getElementById("approved_by_label");
-                        const nameFinder1Select = document.getElementById("name_finder1");
-                        const nameFinder2Select = document.getElementById("name_finder2");
-                        const nameFinder3Select = document.getElementById("name_finder3");
-
-                        checkListTypeSelect.addEventListener("change", function () {
-                            if (checkListTypeSelect.value === "1" || checkListTypeSelect.value === "2") {
-                                inspectedByLabel.style.display = "block";
-                                checkedByLabel.style.display = "block";
-                                approvedByLabel.style.display = "block";
-                                nameFinder1Select.style.display = "block";
-                                nameFinder2Select.style.display = "block";
-                                nameFinder3Select.style.display = "block";
-                            } else {
-                                inspectedByLabel.style.display = "none";
-                                checkedByLabel.style.display = "none";
-                                approvedByLabel.style.display = "none";
-                                nameFinder1Select.style.display = "none";
-                                nameFinder2Select.style.display = "none";
-                                nameFinder3Select.style.display = "none";
-                            }
-                        });
-                    });
-                </script>
+            <label for="name_finder1">Inspected by:</label>
+                <select name="name_finder1" id="name_finder1">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
+            <label for="name_finder2">Checked by:</label>
+                <select name="name_finder2" id="name_finder2">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
+            <label for="name_finder3">Approved by:</label>
+                <select name="name_finder3" id="name_finder3">
+                    <option value="">เลือกชื่อ</option>
+                    {% for user in userlists %}
+                        <option value="{{ user.0 }}">{{ user.0 }}</option>
+                    {% endfor %}
+                </select>
             <br><br>
                {% for list_type in check_list_types %}
                     {% if list_type.id_ch_li_type == 3  %}
-                        <div class="margin-bottom">
+                        <div>
                             <input type="text" name="textbox_item3" id="textbox_item3" placeholder="รหัสอุปกรณ์">
                         </div>
-                        <div class="margin-bottom">
+                        <div>
                             <input type="text" name="textbox_item4" id="textbox_item4" placeholder="ชนิดถังดับเพลิง">
                         </div>
                         <div>
@@ -307,7 +273,7 @@
       {% if duplicate_error %}
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้มี QR Code ของแบบฟอร์มนี้แล้ว กรุณาตรวจสอบใหม่อีกครั้ง");
+                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้มี QR Code ของแบบฟอร์มนี้แล้ว กรุฯาตรวจสอบใหม่อีกครั้ง");
                     if (!shouldGenerate) {
                         // ไม่ต้องทำอะไรเพิ่ม
                     }
