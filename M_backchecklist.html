@@ -18,10 +18,12 @@
 <body>
     <div class="col">
             <img src="{% static 'pic/P1.JPG' %}" class="rounded" alt="nidec" width="160px" height="85px"> <br><br>
-    </div>
+     </div>
 
     <form method="post" onsubmit="logSelectedCheckboxes()">
         {% csrf_token %}
+
+
        {% if unity_check.3 == 1 %}
            {% if request.session.M_user_index == unity_check.7 %}
                 <div class="col">
@@ -31,6 +33,22 @@
                        <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                     <br><br>
                 </div>
+                <label for="month" class="col">&nbsp;&nbsp;&nbsp;เดือนที่เช็คย้อนหลัง :&nbsp;&nbsp;
+                    <select id="month" name="selectedMonth" >
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </label>
                 <br>
                     {% for item in checklist_items %}
                         {% ifchanged item.4 %}
@@ -144,8 +162,7 @@
 
       <script>
             function logSelectedCheckboxes() {
-
-
+                var selectedMonth = document.getElementById('month').value;
                 var checkboxes = document.getElementsByName('checklist_item_sub');
                 var selectedCheckboxes = [];
                 for (var i = 0; i < checkboxes.length; i++) {
@@ -173,7 +190,7 @@
             }
       </script>
 </body>
-    <a href="{% url 'M_back_checklist_form' unity_check.0 %}" class="btn btn-primary login-button" id="bth2">checklist</a>
+
     {% else %}
         <!-- แสดงข้อความถ้ายังไม่ล็อกอิน -->
         <a href="{% url 'M_login' %}?next={% url 'M_checklist_form' unity_check.0 %}">เข้าสู่ระบบ</a>
