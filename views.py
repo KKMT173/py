@@ -193,40 +193,40 @@ def login_view(request):
 #
 #     return render(request, 'master.html', context)
 
-def WebsmartunityQR(request):
-    if 'username' not in request.session:
-        return redirect('login')
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """ select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),
-                unity_check_list.status,
-                (SELECT
-                    CASE
-                        WHEN unity_check_list.status = 4 THEN  'Approved'
-                        WHEN unity_check_list.status = 3 THEN  'Waiting Approved'
-                        WHEN unity_check_list.status = 2 THEN  'Waiting Checked'
-                        WHEN unity_check_list.status = 1 THEN  'Waiting Inspected'
-                        ELSE NULL 
-                    END AS name_status),
-                (SELECT
-                    CASE
-                        WHEN unity_check_list.status = 4  AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'g'
-                        WHEN unity_check_list.status <> 4 AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'y'
-                        WHEN EXTRACT(MONTH FROM unity_check_list.refdate)< EXTRACT(MONTH FROM CURRENT_DATE) THEN 'r'
-                        ELSE NULL 
-                    END AS colour)
-                from unity_check_list 
-                left outer join department on unity_check_list.id_department = department.id 
-                left outer join area on unity_check_list.id_area = area.id 
-                left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 
-            """)
-        check_list_data = cursor.fetchall()
-        # print(check_list_data)
-    # context = {
-    #     'username': request.session['username']
-    # }
-
-    return render(request, 'master.html',{'listchecklists': check_list_data})
+# def WebsmartunityQR(request):
+#     if 'username' not in request.session:
+#         return redirect('login')
+#     with connection.cursor() as cursor:
+#         cursor.execute(
+#             """ select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,date(unity_check_list.refdate),
+#                 unity_check_list.status,
+#                 (SELECT
+#                     CASE
+#                         WHEN unity_check_list.status = 4 THEN  'Approved'
+#                         WHEN unity_check_list.status = 3 THEN  'Waiting Approved'
+#                         WHEN unity_check_list.status = 2 THEN  'Waiting Checked'
+#                         WHEN unity_check_list.status = 1 THEN  'Waiting Inspected'
+#                         ELSE NULL
+#                     END AS name_status),
+#                 (SELECT
+#                     CASE
+#                         WHEN unity_check_list.status = 4  AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'g'
+#                         WHEN unity_check_list.status <> 4 AND EXTRACT(MONTH FROM unity_check_list.refdate)=EXTRACT(MONTH FROM CURRENT_DATE)  THEN 'y'
+#                         WHEN EXTRACT(MONTH FROM unity_check_list.refdate)< EXTRACT(MONTH FROM CURRENT_DATE) THEN 'r'
+#                         ELSE NULL
+#                     END AS colour)
+#                 from unity_check_list
+#                 left outer join department on unity_check_list.id_department = department.id
+#                 left outer join area on unity_check_list.id_area = area.id
+#                 left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id
+#             """)
+#         check_list_data = cursor.fetchall()
+#         # print(check_list_data)
+#     # context = {
+#     #     'username': request.session['username']
+#     # }
+#
+#     return render(request, 'master.html',{'listchecklists': check_list_data})
 
 # def add_user(request):
 #
@@ -242,6 +242,132 @@ def WebsmartunityQR(request):
 #         cursor.execute("SELECT * FROM user_type")
 #         user_types = cursor.fetchall()
 #     return render(request, 'adduser.html', {'user_types': user_types})
+def WebsmartunityQR(request):
+    if 'username' not in request.session:
+        return redirect('login')
+
+    selected_check_list_type = request.GET.get('check_list_type')
+    print(selected_check_list_type)
+    # selected_check_list_type = int(selected_check_list_type)
+    # ตรวจสอบค่า check_list_type_id และปรับ query ข้อมูลตามเงื่อนไขที่ระบุ
+    if selected_check_list_type == '1':
+        query = """  select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                    uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5,uua1.m6,uua1.m7,uua1.m8,uua1.m9,uua1.m10,uua1.m11,uua1.m12
+                    from unity_check_list 
+                    left outer join department on unity_check_list.id_department = department.id 
+                    left outer join area on unity_check_list.id_area = area.id 
+                    left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 	
+                    left outer join (SELECT
+                                        cast (SPLIT_PART(uua.value, '!', 1)as integer) as iduua,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 1 THEN SPLIT_PART(uua.value, '!', 4)END)as m1,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 2 then SPLIT_PART(uua.value, '!', 4)END)as m2,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 3 then SPLIT_PART(uua.value, '!', 4)END)as m3,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 4 then SPLIT_PART(uua.value, '!', 4)END)as m4,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 5 then SPLIT_PART(uua.value, '!', 4)END)as m5,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 6 then SPLIT_PART(uua.value, '!', 4)END)as m6,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 7 then SPLIT_PART(uua.value, '!', 4)END)as m7,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 8 then SPLIT_PART(uua.value, '!', 4)END)as m8,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 9 then SPLIT_PART(uua.value, '!', 4)END)as m9,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 10 then SPLIT_PART(uua.value, '!', 4)END)as m10,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 11 then SPLIT_PART(uua.value, '!', 4)END)as m11,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 12 then SPLIT_PART(uua.value, '!', 4)END)as m12
+                                    FROM unity_user_approve uua
+                                    GROUP BY SPLIT_PART(uua.value, '!', 1)) uua1 on uua1.iduua = unity_check_list.id
+                    where  unity_check_list.id_ch_list_type =1 
+                    group by 
+                    unity_check_list.id
+                    ,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                    unity_check_list.status,uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5,uua1.m6,uua1.m7,uua1.m8,uua1.m9,uua1.m10,uua1.m11,uua1.m12	
+                """
+    elif selected_check_list_type == '2':
+        query ="""  select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5,uua1.m6,uua1.m7,uua1.m8,uua1.m9,uua1.m10,uua1.m11,uua1.m12
+                from unity_check_list 
+                left outer join department on unity_check_list.id_department = department.id 
+                left outer join area on unity_check_list.id_area = area.id 
+                left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 	
+                left outer join (SELECT
+                                    cast (SPLIT_PART(uua.value, '!', 1)as integer) as iduua,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 1 THEN SPLIT_PART(uua.value, '!', 4)END)as m1,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 2 then SPLIT_PART(uua.value, '!', 4)END)as m2,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 3 then SPLIT_PART(uua.value, '!', 4)END)as m3,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 4 then SPLIT_PART(uua.value, '!', 4)END)as m4,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 5 then SPLIT_PART(uua.value, '!', 4)END)as m5,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 6 then SPLIT_PART(uua.value, '!', 4)END)as m6,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 7 then SPLIT_PART(uua.value, '!', 4)END)as m7,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 8 then SPLIT_PART(uua.value, '!', 4)END)as m8,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 9 then SPLIT_PART(uua.value, '!', 4)END)as m9,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 10 then SPLIT_PART(uua.value, '!', 4)END)as m10,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 11 then SPLIT_PART(uua.value, '!', 4)END)as m11,
+                                    MAX(CASE WHEN DATE_PART('month', uua.date_log) = 12 then SPLIT_PART(uua.value, '!', 4)END)as m12
+                                FROM unity_user_approve uua
+                                GROUP BY SPLIT_PART(uua.value, '!', 1)) uua1 on uua1.iduua = unity_check_list.id
+                where  unity_check_list.id_ch_list_type = 2 
+                group by 
+                unity_check_list.id
+                ,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                unity_check_list.status,uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5,uua1.m6,uua1.m7,uua1.m8,uua1.m9,uua1.m10,uua1.m11,uua1.m12	
+            """
+    elif selected_check_list_type == '4':
+        query ="""
+                select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5
+                from unity_check_list 
+                left outer join department on unity_check_list.id_department = department.id 
+                left outer join area on unity_check_list.id_area = area.id 
+                left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 	
+				left outer join (SELECT
+									cast (SPLIT_PART(uua.value, '!', 1)as integer) as iduua,
+									  MAX(CASE WHEN to_char(uua.date_log, 'W') = '1' THEN SPLIT_PART(uua.value, '!', 4)END)as m1,
+                    						MAX(CASE WHEN to_char(uua.date_log, 'W') = '2' THEN SPLIT_PART(uua.value, '!', 4)END)as m2,
+									  		MAX(CASE WHEN to_char(uua.date_log, 'W') = '3' THEN SPLIT_PART(uua.value, '!', 4)END)as m3,
+									 		MAX(CASE WHEN to_char(uua.date_log, 'W') = '4' THEN SPLIT_PART(uua.value, '!', 4)END)as m4,
+											MAX(CASE WHEN to_char(uua.date_log, 'W') = '5' THEN SPLIT_PART(uua.value, '!', 4)END)as m5 
+									
+								FROM unity_user_approve uua
+								GROUP BY SPLIT_PART(uua.value, '!', 1)) uua1 on uua1.iduua = unity_check_list.id
+								where  unity_check_list.id_ch_list_type = 4
+				group by 
+				unity_check_list.id
+				,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                unity_check_list.status,uua1.m1,uua1.m2,uua1.m3,uua1.m4,uua1.m5
+				"""
+
+    elif selected_check_list_type == '3':
+        query = """
+                   select unity_check_list.id,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                    uua1.q1,uua1.q2,uua1.q3,uua1.q4
+                    from unity_check_list 
+                    left outer join department on unity_check_list.id_department = department.id 
+                    left outer join area on unity_check_list.id_area = area.id 
+                    left outer join  unity_check_list_type on unity_check_list.id_ch_list_type = unity_check_list_type.id 	
+                    left outer join (SELECT
+                                        cast (SPLIT_PART(uua.value, '!', 1)as integer) as iduua,
+                                        MAX(CASE WHEN DATE_PART('month', uua.date_log) = 1 THEN SPLIT_PART(uua.value, '!', 4)END)as m1,
+									  	MAX(CASE WHEN DATE_PART('month', uua.date_log) >= 1 and DATE_PART('month', uua.date_log) <=3 THEN SPLIT_PART(uua.value, '!', 4)END)as q1,
+									 	MAX(CASE WHEN DATE_PART('month', uua.date_log) >= 4 and DATE_PART('month', uua.date_log) <=6 THEN SPLIT_PART(uua.value, '!', 4)END)as q2,
+                                      	MAX(CASE WHEN DATE_PART('month', uua.date_log) >= 7 and DATE_PART('month', uua.date_log) <=9 THEN SPLIT_PART(uua.value, '!', 4)END)as q3,
+									    MAX(CASE WHEN DATE_PART('month', uua.date_log) >= 10 and DATE_PART('month', uua.date_log) <=12 THEN SPLIT_PART(uua.value, '!', 4)END)as q4 
+                                    FROM unity_user_approve uua
+                                    GROUP BY SPLIT_PART(uua.value, '!', 1)) uua1 on uua1.iduua = unity_check_list.id
+                    where  unity_check_list.id_ch_list_type =3
+                    group by 
+                    unity_check_list.id
+                    ,department.department_name,area.area_name,unity_check_list_type.name_ch_type,
+                    unity_check_list.status,uua1.q1,uua1.q2,uua1.q3,uua1.q4
+    				"""
+    else:
+        # ไม่มีประเภทที่ถูกเลือก
+        return render(request, 'master.html', {'listchecklists': [], 'current_month': datetime.now().month,
+                                           'check_list_types': get_unity_check_list_type()})
+    # ดำเนินการ query ด้วย query ที่แก้ไขแล้ว
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+
+        check_list_data = cursor.fetchall()
+        print(check_list_data)
+    current_month = datetime.now().month
+    return render(request, 'master.html', {'listchecklists': check_list_data, 'current_month': current_month, 'check_list_types': get_unity_check_list_type(),'selected_check_list_type':selected_check_list_type})
 
 def add_user(request):
 
@@ -1252,60 +1378,64 @@ def m_checklist_report(request, id):
                 GROUP BY
                 SPLIT_PART(uua.value, '!', 1) 
                                 """,[id])
+
             u_num = cursor.fetchone()
             print(u_num)
-            with connections['user_list'].cursor() as cursor_user_list:
-                cursor_user_list.execute("""
-                                                        SELECT
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect1,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect2,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect3,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect4,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect5,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect6,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect7,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect8,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect9,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect10,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect11,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS inspect12,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check1,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check2,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check3,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check4,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check5,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check6,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check7,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check8,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check9,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check10,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check11,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS check12,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name1,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name2,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name3,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name4,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name5,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name6,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name7,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name8,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name9,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name10,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name11,
-                                                                (SELECT name FROM user_list WHERE user_index = %s) AS name12                                            
-
-                                                            FROM
-                                                                user_list
-                                                            LIMIT 1
-                                                        """,
-                                                             [u_num[0], u_num[1], u_num[2], u_num[3], u_num[4], u_num[5],
-                                                              u_num[6], u_num[7], u_num[8], u_num[9], u_num[10], u_num[11],
-                                                              u_num[12], u_num[13], u_num[14], u_num[15], u_num[16], u_num[17],
-                                                              u_num[18], u_num[19], u_num[20],u_num[21], u_num[22], u_num[23],
-                                                              u_num[24], u_num[25], u_num[26], u_num[27], u_num[28], u_num[29],
-                                                              u_num[30], u_num[31], u_num[32], u_num[33], u_num[34], u_num[35] ])
-                report_data_ch = cursor_user_list.fetchone()
-                print(report_data_ch)
+            if u_num is not None:
+                with connections['user_list'].cursor() as cursor_user_list:
+                    cursor_user_list.execute("""
+                                                            SELECT
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect1,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect2,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect3,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect4,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect5,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect6,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect7,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect8,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect9,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect10,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect11,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS inspect12,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check1,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check2,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check3,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check4,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check5,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check6,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check7,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check8,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check9,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check10,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check11,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS check12,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name1,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name2,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name3,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name4,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name5,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name6,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name7,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name8,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name9,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name10,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name11,
+                                                                    (SELECT name FROM user_list WHERE user_index = %s) AS name12                                            
+    
+                                                                FROM
+                                                                    user_list
+                                                                LIMIT 1
+                                                            """,
+                                                                 [u_num[0], u_num[1], u_num[2], u_num[3], u_num[4], u_num[5],
+                                                                  u_num[6], u_num[7], u_num[8], u_num[9], u_num[10], u_num[11],
+                                                                  u_num[12], u_num[13], u_num[14], u_num[15], u_num[16], u_num[17],
+                                                                  u_num[18], u_num[19], u_num[20],u_num[21], u_num[22], u_num[23],
+                                                                  u_num[24], u_num[25], u_num[26], u_num[27], u_num[28], u_num[29],
+                                                                  u_num[30], u_num[31], u_num[32], u_num[33], u_num[34], u_num[35] ])
+                    report_data_ch = cursor_user_list.fetchone()
+            else:
+                report_data_ch = []
+            print(report_data_ch)
         elif unity_check[3] == 2:
             cursor.execute("""
                     select 
@@ -1433,8 +1563,9 @@ def m_checklist_report(request, id):
                                             """, [id])
             u_num = cursor.fetchone()
             print(u_num)
-            with connections['user_list'].cursor() as cursor_user_list:
-                cursor_user_list.execute("""
+            if u_num is not None:
+                with connections['user_list'].cursor() as cursor_user_list:
+                    cursor_user_list.execute("""
                                                                     SELECT
                                                                             (SELECT name FROM user_list WHERE user_index = %s) AS inspect1,
                                                                             (SELECT name FROM user_list WHERE user_index = %s) AS inspect2,
@@ -1483,7 +1614,9 @@ def m_checklist_report(request, id):
                                           u_num[18], u_num[19], u_num[20], u_num[21], u_num[22], u_num[23],
                                           u_num[24], u_num[25], u_num[26], u_num[27], u_num[28], u_num[29],
                                           u_num[30], u_num[31], u_num[32], u_num[33], u_num[34], u_num[35]])
-                report_data_ch = cursor_user_list.fetchone()
+                    report_data_ch = cursor_user_list.fetchone()
+            else :
+                report_data_ch = []
                 print(report_data_ch)
         elif unity_check[3] == 4:
             cursor.execute(""" 
@@ -1579,15 +1712,17 @@ def m_checklist_report(request, id):
 
                                            CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) AS id_check_list,
                                            CAST(SPLIT_PART(uclc .value, '!', 2) AS INTEGER) AS type_ch,
-                                           CAST(SPLIT_PART(uclc .value, '!', 3) AS INTEGER) AS month_ch,
-                                           CAST(SPLIT_PART(uclc .value, '!', 4) AS INTEGER) AS condition_ch,
-                                           CAST(SPLIT_PART(uclc .value, '!', 5) AS date) AS date_ch,
-                                           CAST(SPLIT_PART(uclc .value, '!', 6) AS varchar) AS remark,
-										   CAST(SPLIT_PART(uclc .value, '!', 7) AS varchar) AS name_ch
-
+                                           CAST(SPLIT_PART(uclc .value, '!', 3) AS INTEGER) AS condition_ch,
+										   CAST(SPLIT_PART(uclc .value, '!', 4) AS varchar) AS name_ch,
+										   CAST(SPLIT_PART(uclc .value, '!', 5) AS varchar) AS remark,
+										   date(ref_date)
+											
                                            from  unity_check_list_content  uclc 
                                            where 
-                                           CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) = %s """, [id])
+                                           CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) = %s
+                                           order by 
+										   ref_date
+										    """, [id])
             report_data_ch = cursor.fetchall()
 
 
@@ -1688,10 +1823,11 @@ def M_checklist_form(request, id):
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 1) AS VARCHAR),
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 2) AS VARCHAR),
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 3) AS VARCHAR),
-                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','1','!',CURRENT_DATE),
-                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','2','!',CURRENT_DATE)
+                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!','1'),
+                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!','2')
                                             FROM unity_check_list
                                             where unity_check_list.id = %s
+                                          
                                         """, [id])
                 checklist_items = cursor.fetchall()
             elif unity_check[3] == 4:
@@ -1716,34 +1852,7 @@ def check_action_view(request):
     if request.method == 'POST':
         # รับข้อมูลที่ส่งมาจากแบบฟอร์ม
         unity_check = request.POST.get('unity_check_4')
-        print(unity_check)
-        user_id = request.session.get('M_username')
-        print(user_id)
-        user_index = request.session.get('M_user_index')
-        value_app = f"{unity_check}!{user_id}!{user_index}!3"
-        print(value_app)
-        with connections['default'].cursor() as cursor:
-            cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
-        return redirect('M_checklist_report', id= unity_check)  # แทน 'your_previous_url_name' ด้วยชื่อ URL ที่คุณต้องการกลับไป
-
-def check_action_view2(request):
-    if request.method == 'POST':
-        # รับข้อมูลที่ส่งมาจากแบบฟอร์ม
-        unity_check = request.POST.get('unity_check_4')
-        print(unity_check)
-        user_id = request.session.get('M_username')
-        print(user_id)
-        user_index = request.session.get('M_user_index')
-        value_app = f"{unity_check}!{user_id}!{user_index}!4"
-        print(value_app)
-        with connections['default'].cursor() as cursor:
-            cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
-        return redirect('M_checklist_report', id= unity_check)
-
-
-def M_back_checklist_form(request, id):
-    if request.method == 'POST':
-        month = request.POST.get('selectedMonth')
+        month = request.POST.get('month_check')
         print(month)
         today = datetime.now()
         end_of_month = datetime(today.year, int(month), 1) + timedelta(days=32)
@@ -1751,6 +1860,45 @@ def M_back_checklist_form(request, id):
 
         # คำนวณวันที่ในรูปแบบที่ต้องการ
         formatted_date = end_of_month.strftime('%Y-%m-%d')
+        print(unity_check)
+        user_id = request.session.get('M_username')
+        print(user_id)
+        user_index = request.session.get('M_user_index')
+        value_app = f"{unity_check}!{user_id}!{user_index}!3"
+        print(value_app)
+        with connections['default'].cursor() as cursor:
+            cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)",
+                           [value_app, formatted_date])
+        return redirect('M_checklist_report', id= unity_check)  # แทน 'your_previous_url_name' ด้วยชื่อ URL ที่คุณต้องการกลับไป
+
+def check_action_view2(request):
+    if request.method == 'POST':
+        # รับข้อมูลที่ส่งมาจากแบบฟอร์ม
+        unity_check = request.POST.get('unity_check_4')
+        month = request.POST.get('month_check2')
+        print(month)
+        today = datetime.now()
+        end_of_month = datetime(today.year, int(month), 1) + timedelta(days=32)
+        end_of_month = datetime(end_of_month.year, end_of_month.month, 1) - timedelta(days=1)
+
+        # คำนวณวันที่ในรูปแบบที่ต้องการ
+        formatted_date = end_of_month.strftime('%Y-%m-%d')
+        print(unity_check)
+        user_id = request.session.get('M_username')
+        print(user_id)
+        user_index = request.session.get('M_user_index')
+        value_app = f"{unity_check}!{user_id}!{user_index}!4"
+        print(value_app)
+        with connections['default'].cursor() as cursor:
+            cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)",
+                           [value_app, formatted_date])
+        return redirect('M_checklist_report', id= unity_check)
+
+
+def M_back_checklist_form(request, id):
+    if request.method == 'POST':
+        month = request.POST.get('selectedDate')
+        print(month)
 
         selected_checkboxes = request.POST.getlist('checklist_item_sub')  # Get selected checkboxes
         remark = request.POST.get('remark', '')  # Get the value of "remark"
@@ -1765,8 +1913,8 @@ def M_back_checklist_form(request, id):
                         combined_value = f"{value}!{user_id}!{remark}"
                     else:
                         combined_value = f"{value}!{user_id}"
-                    cursor.execute("INSERT INTO unity_check_list_content (value,ref_date) VALUES (%s,%s)", [combined_value,formatted_date])
-                cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
+                    cursor.execute("INSERT INTO unity_check_list_content (value,ref_date) VALUES (%s,%s)", [combined_value,month])
+                cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)", [value_app,month])
             return redirect('M_checklist_report', id=id)
         else :
             return redirect('M_checklist_report', id=id)
@@ -1841,15 +1989,15 @@ def M_back_checklist_form(request, id):
                 checklist_items = cursor.fetchall()
             elif unity_check[3] == 3:
                 cursor.execute("""
-                                           SELECT
+                                         SELECT
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 1) AS VARCHAR),
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 2) AS VARCHAR),
                                             CAST(SPLIT_PART(unity_check_list.itemcode, '!', 3) AS VARCHAR),
-                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','1','!',CURRENT_DATE),
-                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!',EXTRACT(MONTH FROM CURRENT_DATE),'!','2','!',CURRENT_DATE)
+                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!','1'),
+                                            CONCAT (unity_check_list.id,'!',unity_check_list.id_ch_list_type,'!','2')
                                             FROM unity_check_list
                                             where unity_check_list.id = %s
-                                        """, [id])
+                                            """, [id])
                 checklist_items = cursor.fetchall()
             elif unity_check[3] == 4:
                 cursor.execute("""
