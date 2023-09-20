@@ -1,47 +1,615 @@
 <html>
 {% if request.session.username %}
 <head>
-
     <title>Main Unity Check List</title>
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% include 'header.html' %}
     {% load static %}
+    <style>
+        .container-table {
+            background-color:#EEFFF0; /* Set background color for the container */
+            padding: 10px; /* Add padding for spacing */
+            border-radius: 20px;
+            box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+        .bg-danger-custom {
+            background-color: #FF6666; /* เปลี่ยนสีนี้เป็นสี Hex ที่คุณต้องการ */
+        }
+        table, th, td {
+          border: 0.5px solid black;
+          border-collapse: collapse;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="center-align">
-            <a>
-               <br><h4>  Unity Check List </h4>
-            </a>
+    <div>
+        <br>
     </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Department</th>
-                    <th>Area</th>
-                    <th>ชนิดแบบฟอร์ม</th>
-                    <th>วันที่</th>
-                    <th>สถานะ</th>
-                </tr>
-            </thead>
-            <tbody id="tr">
-                     {% for listchecklist in listchecklists %}
-                <tr>
-                    <td>{{ listchecklist.0 }}</td>
-                    <td>{{ listchecklist.1 }}</td>
-                    <td>{{ listchecklist.2 }}</td>
-                    <td>{{ listchecklist.3 }}</td>
-                    <td>{{ listchecklist.4 }}</td>
-                    <td class="{% if listchecklist.7 == 'g' %}bg-success{% elif listchecklist.7 == 'y' %}bg-warning{% elif listchecklist.7 == 'r' %}bg-danger{% endif %}">
-                        {{ listchecklist.6 }}
-                    </td>
-                </tr>
-                {% endfor %}
+    <div class = "container">
+        <div class="container-table">
+            <div class="center-align">
+                <a>
+                   <br><h4>  Unity Check List </h4>
+                </a>
+            </div>
+            <form method="get" action="{% url 'WebsmartunityQR' %}"> <!-- เพิ่ม form สำหรับเลือก check_list_type -->
+                {% csrf_token %}
+                <label for="check_list_type">ประเภทแบบฟอร์ม :
+                    <select id="check_list_type" name="check_list_type" required>
+                        {% for list_type in check_list_types %}
+                            <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <button type="submit">แสดงข้อมูล</button>
+            </form>
+            {% if selected_check_list_type == '1' %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Department</th>
+                        <th>Area</th>
+                        <th>ชนิดแบบฟอร์ม</th>
+                        <th>Jan</th>
+                        <th>Feb</th>
+                        <th>Mar</th>
+                        <th>Apr</th>
+                        <th>May</th>
+                        <th>Jun</th>
+                        <th>Jul</th>
+                        <th>Aug</th>
+                        <th>Sep</th>
+                        <th>Oct</th>
+                        <th>Nov</th>
+                        <th>Dec</th>
+                    </tr>
+                </thead>
+                <tbody id="tr">
+                         {% for listchecklist in listchecklists %}
+                    <tr>
+                        <td>{{ listchecklist.0 }}</td>
+                        <td>{{ listchecklist.1 }}</td>
+                        <td>{{ listchecklist.2 }}</td>
+                        <td>{{ listchecklist.3 }}</td>
 
-            </tbody>
-        </table>
+                        <td class="
+                            {% if listchecklist.4 == '4' %}bg-success
+                            {% elif listchecklist.4 != '4' and current_month > 1 %}bg-danger
+                            {% elif listchecklist.4 != '4' and current_month == 1 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.4 == '4' %}Approve{% endif %}
+                                {% if listchecklist.4 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.4 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.4 is None and current_month >= 1 %}Waiting Inspect
+                                {% elif current_month < 1  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.5 == '4' %}bg-success
+                            {% elif listchecklist.5 != '4' and current_month > 2 %}bg-danger
+                            {% elif listchecklist.5 != '4' and current_month == 2 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.5 == '4' %}Approve{% endif %}
+                                {% if listchecklist.5 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.5 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.5 is None and current_month >= 2 %}Waiting Inspect
+                                {% elif current_month < 2  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.6 == '4' %}bg-success
+                            {% elif listchecklist.6 != '4' and current_month > 3 %}bg-danger
+                            {% elif listchecklist.6 != '4' and current_month == 3 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.6 == '4' %}Approve{% endif %}
+                                {% if listchecklist.6 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.6 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.6 is None and current_month >= 3 %}Waiting Inspect
+                                {% elif current_month < 3  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.7 == '4' %}bg-success
+                            {% elif listchecklist.7 != '4' and current_month > 4 %}bg-danger
+                            {% elif listchecklist.7 != '4' and current_month == 4 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.7 == '4' %}Approve{% endif %}
+                                {% if listchecklist.7 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.7 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.7 is None and current_month >= 4 %}Waiting Inspect
+                                {% elif current_month < 4  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.8 == '4' %}bg-success
+                            {% elif listchecklist.8 != '4' and current_month > 5 %}bg-danger
+                            {% elif listchecklist.8 != '4' and current_month == 5 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.8 == '4' %}Approve{% endif %}
+                                {% if listchecklist.8 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.8 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.8 is None and current_month >= 5 %}Waiting Inspect
+                                {% elif current_month < 5  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.9 == '4' %}bg-success
+                            {% elif listchecklist.9 != '4' and current_month > 6 %}bg-danger
+                            {% elif listchecklist.9 != '4' and current_month == 6 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.9 == '4' %}Approve{% endif %}
+                                {% if listchecklist.9 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.9 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.9 is None and current_month >= 6 %}Waiting Inspect
+                                {% elif current_month < 6  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.10 == '4' %}bg-success
+                            {% elif listchecklist.10 != '4' and current_month > 7 %}bg-danger
+                            {% elif listchecklist.10 != '4' and current_month == 7 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.10 == '4' %}Approve{% endif %}
+                                {% if listchecklist.10 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.10 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.10 is None and current_month >= 7 %}Waiting Inspect
+                                {% elif current_month < 7  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.11 == '4' %}bg-success
+                            {% elif listchecklist.11 != '4' and current_month > 8 %}bg-danger
+                            {% elif listchecklist.11 != '4' and current_month == 8 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.11 == '4' %}Approve{% endif %}
+                                {% if listchecklist.11 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.11 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.11 is None and current_month >= 8 %}Waiting Inspect
+                                {% elif current_month < 8  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.12 == '4' %}bg-success
+                            {% elif listchecklist.12 != '4' and current_month > 9 %}bg-danger
+                            {% elif listchecklist.12 != '4' and current_month == 9 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.12 == '4' %}Approve{% endif %}
+                                {% if listchecklist.12 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.12 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.12 is None and current_month >= 9 %}Waiting Inspect
+                                {% elif current_month < 9  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.13 == '4' %}bg-success
+                            {% elif listchecklist.13 != '4' and current_month > 10 %}bg-danger
+                            {% elif listchecklist.13 != '4' and current_month == 10 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.13 == '4' %}Approve{% endif %}
+                                {% if listchecklist.13 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.13 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.13 is None and current_month >= 10 %}Waiting Inspect
+                                {% elif current_month < 10  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.14 == '4' %}bg-success
+                            {% elif listchecklist.14 != '4' and current_month > 11 %}bg-danger
+                            {% elif listchecklist.14 != '4' and current_month == 11 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.14 == '4' %}Approve{% endif %}
+                                {% if listchecklist.14 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.14 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.14 is None and current_month >= 11 %}Waiting Inspect
+                                {% elif current_month < 11  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.15 == '4' %}bg-success
+                            {% elif listchecklist.15 != '4' and current_month > 12 %}bg-danger
+                            {% elif listchecklist.15 != '4' and current_month == 12 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.15 == '4' %}Approve{% endif %}
+                                {% if listchecklist.15 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.15 == '2' %}Waiting Check{% endif %}
+                                {% if listchecklist.15 is None and current_month >= 12 %}Waiting Inspect
+                                {% elif current_month < 12  == '' %}
+                                {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif selected_check_list_type == '2' %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Department</th>
+                        <th>Area</th>
+                        <th>ชนิดแบบฟอร์ม</th>
+                        <th>Jan</th>
+                        <th>Feb</th>
+                        <th>Mar</th>
+                        <th>Apr</th>
+                        <th>May</th>
+                        <th>Jun</th>
+                        <th>Jul</th>
+                        <th>Aug</th>
+                        <th>Sep</th>
+                        <th>Oct</th>
+                        <th>Nov</th>
+                        <th>Dec</th>
+                    </tr>
+                </thead>
+                <tbody id="tr2">
+                         {% for listchecklist in listchecklists %}
+                    <tr>
+                        <td>{{ listchecklist.0 }}</td>
+                        <td>{{ listchecklist.1 }}</td>
+                        <td>{{ listchecklist.2 }}</td>
+                        <td>{{ listchecklist.3 }}</td>
+
+                        <td class="
+                            {% if listchecklist.4 == '4' %}bg-success
+                            {% elif listchecklist.4 != '4' and current_month > 1 %}bg-danger
+                            {% elif listchecklist.4 != '4' and current_month == 1 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.4 == '4' %}Approve{% endif %}
+                                {% if listchecklist.4 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.4 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.4 is None and current_month >= 1 %}Waiting Inspect
+                                {% elif current_month < 1  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.5 == '4' %}bg-success
+                            {% elif listchecklist.5 != '4' and current_month > 2 %}bg-danger
+                            {% elif listchecklist.5 != '4' and current_month == 2 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.5 == '4' %}Approve{% endif %}
+                                {% if listchecklist.5 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.5 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.5 is None and current_month >= 2 %}Waiting Inspect
+                                {% elif current_month < 2  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.6 == '4' %}bg-success
+                            {% elif listchecklist.6 != '4' and current_month > 3 %}bg-danger
+                            {% elif listchecklist.6 != '4' and current_month == 3 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.6 == '4' %}Approve{% endif %}
+                                {% if listchecklist.6 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.6 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.6 is None and current_month >= 3 %}Waiting Inspect
+                                {% elif current_month < 3  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.7 == '4' %}bg-success
+                            {% elif listchecklist.7 != '4' and current_month > 4 %}bg-danger
+                            {% elif listchecklist.7 != '4' and current_month == 4 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.7 == '4' %}Approve{% endif %}
+                                {% if listchecklist.7 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.7 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.7 is None and current_month >= 4 %}Waiting Inspect
+                                {% elif current_month < 4  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.8 == '4' %}bg-success
+                            {% elif listchecklist.8 != '4' and current_month > 5 %}bg-danger
+                            {% elif listchecklist.8 != '4' and current_month == 5 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.8 == '4' %}Approve{% endif %}
+                                {% if listchecklist.8 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.8 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.8 is None and current_month >= 5 %}Waiting Inspect
+                                {% elif current_month < 5  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.9 == '4' %}bg-success
+                            {% elif listchecklist.9 != '4' and current_month > 6 %}bg-danger
+                            {% elif listchecklist.9 != '4' and current_month == 6 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.9 == '4' %}Approve{% endif %}
+                                {% if listchecklist.9 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.9 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.9 is None and current_month >= 6 %}Waiting Inspect
+                                {% elif current_month < 6  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.10 == '4' %}bg-success
+                            {% elif listchecklist.10 != '4' and current_month > 7 %}bg-danger
+                            {% elif listchecklist.10 != '4' and current_month == 7 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.10 == '4' %}Approve{% endif %}
+                                {% if listchecklist.10 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.10 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.10 is None and current_month >= 7 %}Waiting Inspect
+                                {% elif current_month < 7  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.11 == '4' %}bg-success
+                            {% elif listchecklist.11 != '4' and current_month > 8 %}bg-danger
+                            {% elif listchecklist.11 != '4' and current_month == 8 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.11 == '4' %}Approve{% endif %}
+                                {% if listchecklist.11 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.11 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.11 is None and current_month >= 8 %}Waiting Inspect
+                                {% elif current_month < 8  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.12 == '4' %}bg-success
+                            {% elif listchecklist.12 != '4' and current_month > 9 %}bg-danger
+                            {% elif listchecklist.12 != '4' and current_month == 9 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.12 == '4' %}Approve{% endif %}
+                                {% if listchecklist.12 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.12 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.12 is None and current_month >= 9 %}Waiting Inspect
+                                {% elif current_month < 9  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.13 == '4' %}bg-success
+                            {% elif listchecklist.13 != '4' and current_month > 10 %}bg-danger
+                            {% elif listchecklist.13 != '4' and current_month == 10 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.13 == '4' %}Approve{% endif %}
+                                {% if listchecklist.13 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.13 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.13 is None and current_month >= 10 %}Waiting Inspect
+                                {% elif current_month < 10  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.14 == '4' %}bg-success
+                            {% elif listchecklist.14 != '4' and current_month > 11 %}bg-danger
+                            {% elif listchecklist.14 != '4' and current_month == 11 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.14 == '4' %}Approve{% endif %}
+                                {% if listchecklist.14 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.14 == '2' %}Waiting Check{% endif %}
+                                {% if  listchecklist.14 is None and current_month >= 11 %}Waiting Inspect
+                                {% elif current_month < 11  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.15 == '4' %}bg-success
+                            {% elif listchecklist.15 != '4' and current_month > 12 %}bg-danger
+                            {% elif listchecklist.15 != '4' and current_month == 12 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.15 == '4' %}Approve{% endif %}
+                                {% if listchecklist.15 == '3' %}Waiting Approve{% endif %}
+                                {% if listchecklist.15 == '2' %}Waiting Check{% endif %}
+                                {% if listchecklist.15 is None and current_month >= 12 %}Waiting Inspect
+                                {% elif current_month < 12  == '' %}
+                                {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif selected_check_list_type == '3' %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Department</th>
+                        <th>Area</th>
+                        <th>ชนิดแบบฟอร์ม</th>
+                        <th>Quarter1</th>
+                        <th>Quarter2</th>
+                        <th>Quarter3</th>
+                        <th>Quarter4</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tr3">
+                         {% for listchecklist in listchecklists %}
+                    <tr>
+                        <td>{{ listchecklist.0 }}</td>
+                        <td>{{ listchecklist.1 }}</td>
+                        <td>{{ listchecklist.2 }}</td>
+                        <td>{{ listchecklist.3 }}</td>
+
+                        <td class="
+                            {% if listchecklist.4 == '2' %}bg-success
+                            {% elif listchecklist.4 != '2' and current_month > 3 %}bg-danger
+                            {% elif listchecklist.4 != '2' and current_month >= 1 and current_month <= 3 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.4 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.4 is None  %}Waiting Inspect {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.5 == '2' %}bg-success
+                            {% elif listchecklist.5 != '2' and current_month > 6 %}bg-danger
+                            {% elif listchecklist.5 != '2' and current_month >= 4 and current_month <= 6 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.5 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.5 is None %}Waiting Inspect
+                                {% elif current_month < 4  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.6 == '2' %}bg-success
+                            {% elif listchecklist.6 != '2' and current_month > 9 %}bg-danger
+                            {% elif listchecklist.6 != '2' and current_month >= 7 and current_month <= 9 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.6 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.6 is None %}Waiting Inspect
+                                {% elif current_month < 7  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.7 == '2' %}bg-success
+                            {% elif listchecklist.7 != '2' and current_year > current_year_of_list %}bg-danger
+                            {% elif listchecklist.7 != '2' and current_month == 10 and current_month <= 12 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.7 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.7 is None and current_month >= 10 %}Waiting Inspect
+                                {% elif current_month < 10  == '' %}
+                                {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif selected_check_list_type == '4' %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Department</th>
+                        <th>Area</th>
+                        <th>ชนิดแบบฟอร์ม</th>
+                        <th>Week1</th>
+                        <th>Week2</th>
+                        <th>Week3</th>
+                        <th>Week4</th>
+                        <th>Week5</th>
+                    </tr>
+                </thead>
+                <tbody id="tr4">
+                         {% for listchecklist in listchecklists %}
+                    <tr>
+                        <td>{{ listchecklist.0 }}</td>
+                        <td>{{ listchecklist.1 }}</td>
+                        <td>{{ listchecklist.2 }}</td>
+                        <td>{{ listchecklist.3 }}</td>
+
+                        <td class="
+                            {% if listchecklist.4 == '2' %}bg-success
+                            {% elif listchecklist.4 != '2' and current_week_in_month > 1 %}bg-danger
+                            {% elif listchecklist.4 != '2' and current_week_in_month == 1 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.4 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.4 is None and current_week_in_month >= 1 %}Waiting Inspect
+                                {% elif current_week_in_month < 1  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.5 == '2' %}bg-success
+                            {% elif listchecklist.5 != '2' and current_week_in_month > 2 %}bg-danger
+                            {% elif listchecklist.5 != '2' and current_week_in_month == 2 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.5 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.5 is None and current_week_in_month >= 2 %}Waiting Inspect
+                                {% elif current_week_in_month < 2  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.6 == '2' %}bg-success
+                            {% elif listchecklist.6 != '2' and current_week_in_month > 3 %}bg-danger
+                            {% elif listchecklist.6 != '2' and current_week_in_month == 3 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.6 == '2' %}Inspected{% endif %}
+                                {% if  listchecklist.6 is None and current_week_in_month >= 3 %}Waiting Inspect
+                                {% elif current_week_in_month < 3  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.7 == '2' %}bg-success
+                            {% elif listchecklist.7 != '2' and current_week_in_month > 4 %}bg-danger
+                            {% elif listchecklist.7 != '2' and current_week_in_month == 4 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.7 == '4' %}Inspected{% endif %}
+                                {% if  listchecklist.7 is None and current_week_in_month >= 4 %}Waiting Inspect
+                                {% elif current_week_in_month < 4  == '' %}
+                                {% endif %}
+                        </td>
+                        <td class="
+                            {% if listchecklist.8 == '2' %}bg-success
+                            {% elif listchecklist.8 != '2' and current_week_in_month > 5 %}bg-danger
+                            {% elif listchecklist.8 != '2' and current_week_in_month == 5 %}bg-warning
+                            {% else %}bg-Light
+                            {% endif %}
+                            ">
+                                {% if listchecklist.8 == '2' %}Approve{% endif %}
+                                {% if  listchecklist.8 is None and current_week_in_month >= 5 %}Waiting Inspect
+                                {% elif current_week_in_month < 5  == '' %}
+                                {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
     </div>
 </body>
 {% else %}

@@ -33,21 +33,8 @@
                        <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                     <br><br>
                 </div>
-                <label for="month" class="col">&nbsp;&nbsp;&nbsp;เดือนที่เช็คย้อนหลัง :&nbsp;&nbsp;
-                    <select id="month" name="selectedMonth" >
-                        <option value="1">มกราคม</option>
-                        <option value="2">กุมภาพันธ์</option>
-                        <option value="3">มีนาคม</option>
-                        <option value="4">เมษายน</option>
-                        <option value="5">พฤษภาคม</option>
-                        <option value="6">มิถุนายน</option>
-                        <option value="7">กรกฎาคม</option>
-                        <option value="8">สิงหาคม</option>
-                        <option value="9">กันยายน</option>
-                        <option value="10">ตุลาคม</option>
-                        <option value="11">พฤศจิกายน</option>
-                        <option value="12">ธันวาคม</option>
-                    </select>
+                <label for="month" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
+                    <input type="date" id="month" name="selectedDate">
                 </label>
                 <br>
                     {% for item in checklist_items %}
@@ -84,11 +71,15 @@
                    <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                 <br><br>
             </div>
+            <label for="month2" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
+                    <input type="date" id="month2" name="selectedDate">
+            </label>
                 {% for item in checklist_items %}
                     {% ifchanged item.3 %}
                         <br>
                         <h3>{{ item.3 }} รหัสเลขที่ :{% if item.2 %} {{ item.2 }} {% endif %}</h3> <!-- Unity Name - Display only once -->
                     {% endifchanged %} <!-- Unity Name -->
+
                         <label>
                        &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.6 }}">
                         {{ item.5 }} <!-- Detail Name -->
@@ -112,12 +103,16 @@
                    <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                    <br><br>
             </div>
+
             <div class="col">
                  {% for checklist in checklist_items %}
                   <h4>Code : {{ checklist.0 }}&nbsp;&nbsp;&nbsp;&nbsp; ชนิดถังดับเพลิง : {{ checklist.1 }}&nbsp;&nbsp;&nbsp;&nbsp; ขนาด : {{ checklist.2 }}</h4>
                        <br><br>
                 {% endfor %}
              </div>
+            <label for="month3" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
+                <input type="date" id="month3" name="selectedDate">
+            </label>
                   {% for item3 in checklist_items %}
                     <br>
                     <h3>ยืนยันความสมบูรณ์ของถังดับเพลิง</h3>
@@ -143,6 +138,9 @@
                    <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                 <br><br>
             </div>
+            <label for="month4" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
+                <input type="date" id="month4" name="selectedDate">
+            </label>
                 {% for item in checklist_items %}
                     {% ifchanged item.2 %}
                         <br>

@@ -40,303 +40,313 @@
         .margin-bottom {
             margin-bottom: 20px; /* เพิ่มช่องว่างด้านล่าง 20px */
         }
+        .container-table {
+            background-color:#EEFFF0; /* Set background color for the container */
+            padding: 10px; /* Add padding for spacing */
+            border-radius: 20px;
+            box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
     </style>
 
 </head>
 <body>
-    <div class="container">
-          <script>
-            let checkboxesContainer; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ checkboxesContainer
-            let item_id2Textbox; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ textbox
+    <div><br></div>
 
-                document.addEventListener("DOMContentLoaded", function() {
-                    const checkListTypeSelect = document.getElementById("check_list_type");
-                    checkboxesContainer = document.getElementById("checkboxes"); // กำหนดค่าให้กับตัวแปร checkboxesContainer
+        <div class="container">
+            <div class="container-table">
+                  <script>
+                    let checkboxesContainer; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ checkboxesContainer
+                    let item_id2Textbox; // ตัวแปร global สำหรับเก็บอิลิเมนต์ของ textbox
+
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const checkListTypeSelect = document.getElementById("check_list_type");
+                            checkboxesContainer = document.getElementById("checkboxes"); // กำหนดค่าให้กับตัวแปร checkboxesContainer
 
 
-                    // เรียกใช้งานฟังก์ชัน createInputTextbox เพื่อสร้าง textbox
-                    createInputTextbox();
+                            // เรียกใช้งานฟังก์ชัน createInputTextbox เพื่อสร้าง textbox
+                            createInputTextbox();
 
-                    // นำค่าของ textbox ไปเก็บในตัวแปร item_id2Textbox
-                    item_id2Textbox = document.getElementById("item_id2_textbox");
+                            // นำค่าของ textbox ไปเก็บในตัวแปร item_id2Textbox
+                            item_id2Textbox = document.getElementById("item_id2_textbox");
 
-                    // เพิ่ม event listener ให้กับ checkboxes เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน checkbox
-                    document.querySelectorAll("input[name='checklist_item']").forEach(checkbox => {
-                        checkbox.addEventListener("change", function(event) {
-                            const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                            // เพิ่ม event listener ให้กับ checkboxes เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน checkbox
+                            document.querySelectorAll("input[name='checklist_item']").forEach(checkbox => {
+                                checkbox.addEventListener("change", function(event) {
+                                    const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                                    const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
+
+                                    checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+
+                                    // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
+                                    const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                                    const selectedValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+                                    console.log(selectedValues);
+
+                                    // นำค่าที่ถูกเลือกและค่าของ textbox ไปอัปเดตในรูปแบบของ "item_id2-textbox_value" และส่งค่าไปยังฟอร์มเมื่อมีการ submit
+                                    const item_id2TextboxValue = item_id2Textbox.value;
+                                    checkboxes.forEach(checkbox => {
+                                        if (checkbox.checked) {
+                                            checkbox.value = `${checkbox.dataset.originalValue}!${item_id2TextboxValue}`;
+                                        }
+                                    });
+                                });
+                            });
+
+                            // เพิ่ม event listener ให้กับ textbox เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน textbox
+                            item_id2Textbox.addEventListener("input", function() {
                             const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
+                            const checkboxes = document.querySelectorAll("input[name='checklist_item']");
 
-                            checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
-
-                            // แสดงค่าที่อยู่ใน checkbox ที่ถูกเลือกใน console.log()
-                            const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
-                            const selectedValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
-                            console.log(selectedValues);
-
-                            // นำค่าที่ถูกเลือกและค่าของ textbox ไปอัปเดตในรูปแบบของ "item_id2-textbox_value" และส่งค่าไปยังฟอร์มเมื่อมีการ submit
-                            const item_id2TextboxValue = item_id2Textbox.value;
                             checkboxes.forEach(checkbox => {
-                                if (checkbox.checked) {
-                                    checkbox.value = `${checkbox.dataset.originalValue}!${item_id2TextboxValue}`;
+                                const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
+                            const checkboxValueParts = checkbox.value.split("!"); // แยกค่า checkbox.value เป็นส่วนย่อยๆ
+
+                            // ตรวจสอบว่าค่าเดิมและค่าใหม่ของ textbox เปลี่ยนแปลงหรือไม่
+                                if (checkboxValueParts.length === 2) {
+                                    const oldValue = checkboxValueParts[1];
+                                    if (oldValue !== textboxValue) {
+                                        checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
+                                    }
+                                }
+                            });
+
+                            });
+
+
+                            // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
+                            document.querySelector("form").addEventListener("submit", function(event) {
+                                if (checkListTypeSelect.value !== "3") {
+                                    // ตรวจสอบว่าค่า checkListTypeSelect.value ไม่เท่ากับ "3" ก่อนที่จะแสดงการแจ้งเตือน
+                                    const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
+                                    if (selectedCheckboxes.length === 0) {
+                                        event.preventDefault(); // ยกเลิกการส่งฟอร์มเมื่อไม่มี checkbox ที่ถูกเลือก
+                                        alert("กรุณาเลือกอย่างน้อยหนึ่งช่อง");
+                                        return;
+                                    }
+                                    const selectedCheckboxesInput = document.createElement("input");
+                                    selectedCheckboxesInput.type = "hidden";
+                                    selectedCheckboxesInput.name = "selected_checkboxes";
+                                    selectedCheckboxesInput.value = selectedCheckboxes.length > 0 ? selectedCheckboxes.map(checkbox => checkbox.value).join(',') : '';
+                                    form.appendChild(selectedCheckboxesInput);
+                                    // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
+                                    const item_id2Textbox = document.getElementById("item_id2_textbox");
+                                    const checkboxes = document.getElementsByName("checklist_item");
+                                    checkboxes.forEach(checkbox => {
+                                        checkbox.value = checkbox.dataset.originalValue + "!" + item_id2Textbox.value;
+                                    });
                                 }
                             });
                         });
-                    });
 
-                    // เพิ่ม event listener ให้กับ textbox เพื่ออัปเดตค่าของ checkbox เมื่อมีการเปลี่ยนแปลงใน textbox
-                    item_id2Textbox.addEventListener("input", function() {
-                    const textboxValue = item_id2Textbox.value; // ค่าที่อยู่ใน textbox
-                    const checkboxes = document.querySelectorAll("input[name='checklist_item']");
+                        // สร้าง textbox สำหรับรหัสเลขที่หลัง checkbox ที่มีค่า item_id2
+                        function createInputTextbox() {
+                            const inputTextbox = document.createElement("input");
+                            inputTextbox.type = "text";
+                            inputTextbox.name = "textbox_item";
+                            inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
+                            inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
+                            inputTextbox.style.display = "none"; // ซ่อน textbox นอก lable ของ checkbox
+                            checkboxesContainer.appendChild(inputTextbox);
 
-                    checkboxes.forEach(checkbox => {
-                        const originalValue = checkbox.dataset.originalValue; // ค่าเดิมที่อยู่ใน dataset.originalValue
-                    const checkboxValueParts = checkbox.value.split("!"); // แยกค่า checkbox.value เป็นส่วนย่อยๆ
-
-                    // ตรวจสอบว่าค่าเดิมและค่าใหม่ของ textbox เปลี่ยนแปลงหรือไม่
-                        if (checkboxValueParts.length === 2) {
-                            const oldValue = checkboxValueParts[1];
-                            if (oldValue !== textboxValue) {
-                                checkbox.value = `${originalValue}!${textboxValue}`; // รวมค่าเข้าด้วยกันเป็น "item_id2-textbox_value"
-                            }
+                            // Add a line break after the textbox
+                            const br = document.createElement("br");
+                            checkboxesContainer.appendChild(br);
                         }
-                    });
 
-                    });
+                </script>
+                <br>
+                <h1>QR Code Checklist </h1><br>
 
+                <form method="post" action="{% url 'generate_qr_code' %}" >
+                    {% csrf_token %}
+                    <label for="check_list_type">ประเภทแบบฟอร์ม :</label>
+                    <select id="check_list_type" name="check_list_type" required>
+                        {% for list_type in check_list_types %}
+                        <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    <label for="department">Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</label>
+                    <select id="department" name="department" required>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="area">&nbsp;&nbsp;&nbsp;Area :</label>
+                        <select id="area" name="area" required>
+                            {% for area in areas %}
+                            <option value="{{ area.id }}">{{ area.name }}</option>
+                            {% endfor %}
+                        </select>
+                    <br><br>
+                    <label for="name_finder1" id="inspected_by_label" style="display: none;">Inspected by:</label>
+                    <select name="name_finder1" id="name_finder1" style="display: none;">
 
-                    // เพิ่ม event listener ให้กับฟอร์มเมื่อมีการ submit
-                    document.querySelector("form").addEventListener("submit", function(event) {
-                        if (checkListTypeSelect.value !== "3") {
-                            // ตรวจสอบว่าค่า checkListTypeSelect.value ไม่เท่ากับ "3" ก่อนที่จะแสดงการแจ้งเตือน
-                            const selectedCheckboxes = document.querySelectorAll("input[name='checklist_item']:checked");
-                            if (selectedCheckboxes.length === 0) {
-                                event.preventDefault(); // ยกเลิกการส่งฟอร์มเมื่อไม่มี checkbox ที่ถูกเลือก
-                                alert("กรุณาเลือกอย่างน้อยหนึ่งช่อง");
-                                return;
-                            }
-                            const selectedCheckboxesInput = document.createElement("input");
-                            selectedCheckboxesInput.type = "hidden";
-                            selectedCheckboxesInput.name = "selected_checkboxes";
-                            selectedCheckboxesInput.value = selectedCheckboxes.length > 0 ? selectedCheckboxes.map(checkbox => checkbox.value).join(',') : '';
-                            form.appendChild(selectedCheckboxesInput);
-                            // กำหนดค่า value ของ checkbox เป็นค่าของ "item_id2-textbox_value"
-                            const item_id2Textbox = document.getElementById("item_id2_textbox");
-                            const checkboxes = document.getElementsByName("checklist_item");
-                            checkboxes.forEach(checkbox => {
-                                checkbox.value = checkbox.dataset.originalValue + "!" + item_id2Textbox.value;
+                        {% for user in userlists %}
+                            <option value="{{ user.4 }}">{{ user.0 }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="name_finder2" id="checked_by_label" style="display: none;">Checked by:</label>
+                    <select name="name_finder2" id="name_finder2" style="display: none;">
+
+                        {% for user in userlists %}
+                            <option value="{{ user.4 }}">{{ user.0 }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="name_finder3" id="approved_by_label" style="display: none;">Approved by:</label>
+                    <select name="name_finder3" id="name_finder3" style="display: none;">
+
+                        {% for user in userlists %}
+                            <option value="{{ user.4 }}">{{ user.0 }}</option>
+                        {% endfor %}
+                    </select>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const checkListTypeSelect = document.getElementById("check_list_type");
+                                const inspectedByLabel = document.getElementById("inspected_by_label");
+                                const checkedByLabel = document.getElementById("checked_by_label");
+                                const approvedByLabel = document.getElementById("approved_by_label");
+                                const nameFinder1Select = document.getElementById("name_finder1");
+                                const nameFinder2Select = document.getElementById("name_finder2");
+                                const nameFinder3Select = document.getElementById("name_finder3");
+
+                                checkListTypeSelect.addEventListener("change", function () {
+                                    if (checkListTypeSelect.value === "1" || checkListTypeSelect.value === "2") {
+                                        inspectedByLabel.style.display = "block";
+                                        checkedByLabel.style.display = "block";
+                                        approvedByLabel.style.display = "block";
+                                        nameFinder1Select.style.display = "block";
+                                        nameFinder2Select.style.display = "block";
+                                        nameFinder3Select.style.display = "block";
+                                    } else {
+                                        inspectedByLabel.style.display = "none";
+                                        checkedByLabel.style.display = "none";
+                                        approvedByLabel.style.display = "none";
+                                        nameFinder1Select.style.display = "none";
+                                        nameFinder2Select.style.display = "none";
+                                        nameFinder3Select.style.display = "none";
+                                    }
+                                });
                             });
-                        }
-                    });
-                });
+                        </script>
+                    <br><br>
+                       {% for list_type in check_list_types %}
+                            {% if list_type.id_ch_li_type == 3  %}
+                                <div class="margin-bottom">
+                                    <input type="text" name="textbox_item3" id="textbox_item3" placeholder="รหัสอุปกรณ์">
+                                </div>
+                                <div class="margin-bottom">
+                                    <input type="text" name="textbox_item4" id="textbox_item4" placeholder="ชนิดถังดับเพลิง">
+                                </div>
+                                <div>
+                                    <input type="text" name="textbox_item5" id="textbox_item5" placeholder="ขนาด">
+                                </div>
+                            {% elif list_type.id_ch_li_type == 4 %}
+                                <div>
+                                    <input type="text" name="textbox_item44" id="textbox_item44" placeholder="รหัสอุปกรณ์">
+                                </div>
 
-                // สร้าง textbox สำหรับรหัสเลขที่หลัง checkbox ที่มีค่า item_id2
-                function createInputTextbox() {
-                    const inputTextbox = document.createElement("input");
-                    inputTextbox.type = "text";
-                    inputTextbox.name = "textbox_item";
-                    inputTextbox.placeholder = "รหัสเลขที่"; // กำหนด placeholder ให้กับ textbox
-                    inputTextbox.id = "item_id2_textbox"; // กำหนด id ให้กับ textbox
-                    inputTextbox.style.display = "none"; // ซ่อน textbox นอก lable ของ checkbox
-                    checkboxesContainer.appendChild(inputTextbox);
+                            {% else %}
+                                <div id="checkboxes">
+                                    <!-- Checkboxes will be populated here using JavaScript -->
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    <br>
+                     <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const checkListTypeSelect = document.getElementById("check_list_type");
+                            const checkboxesContainer = document.getElementById("checkboxes");
+                            const textboxItem3 = document.getElementById("textbox_item3");
+                            const textboxItem4 = document.getElementById("textbox_item4");
+                            const textboxItem5 = document.getElementById("textbox_item5");
+                            const textboxItem44 = document.getElementById("textbox_item44");
 
-                    // Add a line break after the textbox
-                    const br = document.createElement("br");
-                    checkboxesContainer.appendChild(br);
-                }
-
-        </script>
-        <br>
-        <h1>QR Code Checklist </h1><br>
-
-        <form method="post" action="{% url 'generate_qr_code' %}" >
-            {% csrf_token %}
-            <label for="check_list_type">ประเภทแบบฟอร์ม :</label>
-            <select id="check_list_type" name="check_list_type" required>
-                {% for list_type in check_list_types %}
-                <option value="{{ list_type.id_ch_li_type }}">{{ list_type.name_ch_li_type }}</option>
-                {% endfor %}
-            </select>
-            <br><br>
-            <label for="department">Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</label>
-            <select id="department" name="department" required>
-                {% for dept in departments %}
-                <option value="{{ dept.id }}">{{ dept.name }}</option>
-                {% endfor %}
-            </select>
-            <label for="area">&nbsp;&nbsp;&nbsp;Area :</label>
-                <select id="area" name="area" required>
-                    {% for area in areas %}
-                    <option value="{{ area.id }}">{{ area.name }}</option>
-                    {% endfor %}
-                </select>
-            <br><br>
-            <label for="name_finder1" id="inspected_by_label" style="display: none;">Inspected by:</label>
-            <select name="name_finder1" id="name_finder1" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="name_finder2" id="checked_by_label" style="display: none;">Checked by:</label>
-            <select name="name_finder2" id="name_finder2" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-
-            <label for="name_finder3" id="approved_by_label" style="display: none;">Approved by:</label>
-            <select name="name_finder3" id="name_finder3" style="display: none;">
-
-                {% for user in userlists %}
-                    <option value="{{ user.4 }}">{{ user.0 }}</option>
-                {% endfor %}
-            </select>
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        const checkListTypeSelect = document.getElementById("check_list_type");
-                        const inspectedByLabel = document.getElementById("inspected_by_label");
-                        const checkedByLabel = document.getElementById("checked_by_label");
-                        const approvedByLabel = document.getElementById("approved_by_label");
-                        const nameFinder1Select = document.getElementById("name_finder1");
-                        const nameFinder2Select = document.getElementById("name_finder2");
-                        const nameFinder3Select = document.getElementById("name_finder3");
-
-                        checkListTypeSelect.addEventListener("change", function () {
-                            if (checkListTypeSelect.value === "1" || checkListTypeSelect.value === "2") {
-                                inspectedByLabel.style.display = "block";
-                                checkedByLabel.style.display = "block";
-                                approvedByLabel.style.display = "block";
-                                nameFinder1Select.style.display = "block";
-                                nameFinder2Select.style.display = "block";
-                                nameFinder3Select.style.display = "block";
+                            checkListTypeSelect.addEventListener("change", function() {
+                                if (checkListTypeSelect.value === "3") {
+                                    // ถ้าเลือกประเภทการตรวจสอบเป็น 3 ให้แสดงช่องรหัสเลขที่
+                                    textboxItem3.style.display = "block";
+                                    textboxItem4.style.display = "block";
+                                    textboxItem5.style.display = "block";
+                                    textboxItem44.style.display = "none";
+                                    checkboxesContainer.style.display = "none";
+                                } else if (checkListTypeSelect.value === "4") {
+                                    // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
+                                    textboxItem3.style.display = "none";
+                                    textboxItem4.style.display = "none";
+                                    textboxItem5.style.display = "none";
+                                    textboxItem44.style.display = "block";
+                                    checkboxesContainer.style.display = "block";
+                                } else {
+                                    // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
+                                    textboxItem3.style.display = "none";
+                                    textboxItem4.style.display = "none";
+                                    textboxItem5.style.display = "none";
+                                    textboxItem44.style.display = "none";
+                                    checkboxesContainer.style.display = "block";
+                                }
+                            });
+                            // ให้กำหนดสถานะเริ่มต้นเมื่อโหลดหน้าเว็บ
+                            if (checkListTypeSelect.value === "3") {
+                                    textboxItem3.style.display = "block";
+                                    textboxItem4.style.display = "block";
+                                    textboxItem5.style.display = "block";
+                                    textboxItem44.style.display = "none";
+                                checkboxesContainer.style.display = "none";
                             } else {
-                                inspectedByLabel.style.display = "none";
-                                checkedByLabel.style.display = "none";
-                                approvedByLabel.style.display = "none";
-                                nameFinder1Select.style.display = "none";
-                                nameFinder2Select.style.display = "none";
-                                nameFinder3Select.style.display = "none";
+                                textboxItem3.style.display = "none";
+                                textboxItem3.style.display = "none";
+                                textboxItem4.style.display = "none";
+                                textboxItem5.style.display = "none";
+                                checkboxesContainer.style.display = "block";
                             }
                         });
+                    </script>
+                   <input type="submit" value="Generate QR Code" class="generate_qr_btn" id="generate_qr_btn" onclick="return confirmGenerateQRCode(event)">
+                   <script>
+                        function confirmGenerateQRCode(event) {
+                            if (event.target.id === 'generate_qr_btn') {
+                                return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
+                            }
+                        }
+                   </script>
+                </form>
+              {% if duplicate_error %}
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้มี QR Code ของแบบฟอร์มนี้แล้ว กรุณาตรวจสอบใหม่อีกครั้ง");
+                            if (!shouldGenerate) {
+                                // ไม่ต้องทำอะไรเพิ่ม
+                            }
+                        });
+                    </script>
+                {% endif %}
+                <br>
+                {% if qr_code_path %}
+                <h2>QR Code</h2>
+                <img src="../media/{{ qr_code_path }}" alt="QR Code">
+                {% endif %}
+               <script>
+                    // To show the selected checkboxes immediately when the user clicks each checkbox
+                    document.addEventListener("change", function(event) {
+                        if (event.target.name === "checklist_item") {
+                            const selectedCheckboxes = [];
+                            const checkboxes = document.getElementsByName("checklist_item");
+
+                            checkboxes.forEach(checkbox => {
+                                if (checkbox.checked) {
+                                    selectedCheckboxes.push(checkbox.value);
+                                }
+                            });
+
+                            console.log(selectedCheckboxes); // ค่าที่อยู่ใน checkbox ที่ถูกเลือกจะถูกแสดงใน console.log()
+                        }
                     });
                 </script>
-            <br><br>
-               {% for list_type in check_list_types %}
-                    {% if list_type.id_ch_li_type == 3  %}
-                        <div class="margin-bottom">
-                            <input type="text" name="textbox_item3" id="textbox_item3" placeholder="รหัสอุปกรณ์">
-                        </div>
-                        <div class="margin-bottom">
-                            <input type="text" name="textbox_item4" id="textbox_item4" placeholder="ชนิดถังดับเพลิง">
-                        </div>
-                        <div>
-                            <input type="text" name="textbox_item5" id="textbox_item5" placeholder="ขนาด">
-                        </div>
-                    {% elif list_type.id_ch_li_type == 4 %}
-                        <div>
-                            <input type="text" name="textbox_item44" id="textbox_item44" placeholder="รหัสอุปกรณ์">
-                        </div>
-
-                    {% else %}
-                        <div id="checkboxes">
-                            <!-- Checkboxes will be populated here using JavaScript -->
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            <br>
-             <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    const checkListTypeSelect = document.getElementById("check_list_type");
-                    const checkboxesContainer = document.getElementById("checkboxes");
-                    const textboxItem3 = document.getElementById("textbox_item3");
-                    const textboxItem4 = document.getElementById("textbox_item4");
-                    const textboxItem5 = document.getElementById("textbox_item5");
-                    const textboxItem44 = document.getElementById("textbox_item44");
-
-                    checkListTypeSelect.addEventListener("change", function() {
-                        if (checkListTypeSelect.value === "3") {
-                            // ถ้าเลือกประเภทการตรวจสอบเป็น 3 ให้แสดงช่องรหัสเลขที่
-                            textboxItem3.style.display = "block";
-                            textboxItem4.style.display = "block";
-                            textboxItem5.style.display = "block";
-                            textboxItem44.style.display = "none";
-                            checkboxesContainer.style.display = "none";
-                        } else if (checkListTypeSelect.value === "4") {
-                            // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
-                            textboxItem3.style.display = "none";
-                            textboxItem4.style.display = "none";
-                            textboxItem5.style.display = "none";
-                            textboxItem44.style.display = "block";
-                            checkboxesContainer.style.display = "block";
-                        } else {
-                            // ถ้าเลือกประเภทการตรวจสอบไม่ใช่ 3 ให้ซ่อนช่องรหัสเลขที่และแสดง checkboxes
-                            textboxItem3.style.display = "none";
-                            textboxItem4.style.display = "none";
-                            textboxItem5.style.display = "none";
-                            textboxItem44.style.display = "none";
-                            checkboxesContainer.style.display = "block";
-                        }
-                    });
-                    // ให้กำหนดสถานะเริ่มต้นเมื่อโหลดหน้าเว็บ
-                    if (checkListTypeSelect.value === "3") {
-                            textboxItem3.style.display = "block";
-                            textboxItem4.style.display = "block";
-                            textboxItem5.style.display = "block";
-                            textboxItem44.style.display = "none";
-                        checkboxesContainer.style.display = "none";
-                    } else {
-                        textboxItem3.style.display = "none";
-                        textboxItem3.style.display = "none";
-                        textboxItem4.style.display = "none";
-                        textboxItem5.style.display = "none";
-                        checkboxesContainer.style.display = "block";
-                    }
-                });
-            </script>
-           <input type="submit" value="Generate QR Code" class="generate_qr_btn" id="generate_qr_btn" onclick="return confirmGenerateQRCode(event)">
-           <script>
-                function confirmGenerateQRCode(event) {
-                    if (event.target.id === 'generate_qr_btn') {
-                        return confirm("คุณแน่ใจหรือไม่ว่าต้องการสร้าง QR Code?");
-                    }
-                }
-           </script>
-        </form>
-      {% if duplicate_error %}
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    var shouldGenerate = {{ duplicate_error|lower }} && confirm("Area ของแผนกนี้ได้มี QR Code ของแบบฟอร์มนี้แล้ว กรุณาตรวจสอบใหม่อีกครั้ง");
-                    if (!shouldGenerate) {
-                        // ไม่ต้องทำอะไรเพิ่ม
-                    }
-                });
-            </script>
-        {% endif %}
-        <br>
-        {% if qr_code_path %}
-        <h2>QR Code</h2>
-        <img src="../media/{{ qr_code_path }}" alt="QR Code">
-        {% endif %}
-       <script>
-            // To show the selected checkboxes immediately when the user clicks each checkbox
-            document.addEventListener("change", function(event) {
-                if (event.target.name === "checklist_item") {
-                    const selectedCheckboxes = [];
-                    const checkboxes = document.getElementsByName("checklist_item");
-
-                    checkboxes.forEach(checkbox => {
-                        if (checkbox.checked) {
-                            selectedCheckboxes.push(checkbox.value);
-                        }
-                    });
-
-                    console.log(selectedCheckboxes); // ค่าที่อยู่ใน checkbox ที่ถูกเลือกจะถูกแสดงใน console.log()
-                }
-            });
-        </script>
-    </div>
+            </div>
+        </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const checkListTypeSelect = document.getElementById("check_list_type");

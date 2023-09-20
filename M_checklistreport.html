@@ -27,6 +27,14 @@
             right: 20px;
 
         }
+        /* เพิ่มสไตล์สำหรับแถวที่มี item.id เป็น None */
+        table.table tbody#tr2 tr[data-item-id="None"] {
+            background-color: #D0D0D0; /* สีเทา */
+        }
+        table, th, td {
+          border: 0.5px solid black;
+          border-collapse: collapse;
+        }
     </style>
 </head>
 <body>
@@ -42,25 +50,24 @@
                    <br> <h4>Department : {{ unity_check.1 }}&nbsp;&nbsp;&nbsp;&nbsp; Area : {{ unity_check.2 }}</h4>
                 <br><br>
             </div>
-
             <table class="table">
                  <thead>
                         <tr>
                             <th>หมวด</th>
                             <th>เรื่อง</th>
                             <th>รายละเอียด</th>
-                            <th>Jan</th>
-                            <th>Feb</th>
-                            <th>Mar</th>
-                            <th>Apr</th>
-                            <th>May</th>
-                            <th>Jun</th>
-                            <th>Jul</th>
-                            <th>Aug</th>
-                            <th>Sep</th>
-                            <th>Oct</th>
-                            <th>Nov</th>
-                            <th>Dec</th>
+                            <th class = "text-center">Jan</th>
+                            <th class = "text-center">Feb</th>
+                            <th class = "text-center">Mar</th>
+                            <th class = "text-center">Apr</th>
+                            <th class = "text-center">May</th>
+                            <th class = "text-center">Jun</th>
+                            <th class = "text-center">Jul</th>
+                            <th class = "text-center">Aug</th>
+                            <th class = "text-center">Sep</th>
+                            <th class = "text-center">Oct</th>
+                            <th class = "text-center">Nov</th>
+                            <th class = "text-center">Dec</th>
                         </tr>
                  </thead>
                 <tbody id="tr1">
@@ -77,18 +84,18 @@
                             {% endifchanged %}
                         </td>
                         <td>{{ item.LineDetail }}</td>
-                        <td>{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck6 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck7 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck8 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck9 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck10 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck11 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                        <td>{% if item.valuecheck12 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck6 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck7 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck8 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck9 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck10 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck11 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                        <td class = "text-center">{% if item.valuecheck12 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
                         <!-- เพิ่มคอลัมน์สำหรับ Value 3 ถึง Value 12 ตามต้องการ -->
                     </tr>
                     {% endfor %}
@@ -166,96 +173,104 @@
                         <td>
                             {% if report_data_ch.12 %}
                                 {{ report_data_ch.12 }}
-                            {% elif report_data_ch.0 and report_data_ch.12 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.0 %}
+                            {% elif report_data_ch.0 and report_data_ch.12 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="1">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.13 %}
                                 {{ report_data_ch.13 }}
-                            {% elif report_data_ch.1 and report_data_ch.13 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.1 %}
+                            {% elif report_data_ch.1 and report_data_ch.13 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="2">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.14 %}
                                 {{ report_data_ch.14 }}
-                            {% elif report_data_ch.2 and report_data_ch.14 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.2 %}
+                            {% elif report_data_ch.2 and report_data_ch.14 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="3">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.15 %}
                                 {{ report_data_ch.15 }}
-                            {% elif report_data_ch.3 and report_data_ch.15 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.3 %}
+                            {% elif report_data_ch.3 and report_data_ch.15 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="4">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.16 %}
                                 {{ report_data_ch.16 }}
-                            {% elif report_data_ch.4 and report_data_ch.16 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.4 %}
+                            {% elif report_data_ch.4 and report_data_ch.16 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="5">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.17 %}
                                 {{ report_data_ch.17 }}
-                            {% elif report_data_ch.5 and report_data_ch.17 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.5 %}
+                            {% elif report_data_ch.5 and report_data_ch.17 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="6">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.18 %}
                                 {{ report_data_ch.18 }}
-                            {% elif report_data_ch.6 and report_data_ch.18 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.6 %}
+                            {% elif report_data_ch.6 and report_data_ch.18 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="7">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.19 %}
                                 {{ report_data_ch.19 }}
-                            {% elif report_data_ch.7 and report_data_ch.19 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.7 %}
+                            {% elif report_data_ch.7 and report_data_ch.19 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="8">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
@@ -267,30 +282,33 @@
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
+                                    <input type="hidden" name="month_check" value="9">
+                                    <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.21 %}
                                 {{ report_data_ch.21 }}
-                            {% elif report_data_ch.9 and report_data_ch.21 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                            {% elif report_data_ch.9 and report_data_ch.21 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check" value="10">
                                      <button type="submit">Check</button>
                                 </form>
                             {% endif %}
                         </td>
-                         <td>
+                        <td>
                             {% if report_data_ch.22 %}
                                 {{ report_data_ch.22 }}
-                            {% elif report_data_ch.10 and report_data_ch.22 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.10 %}
+                            {% elif report_data_ch.10 and report_data_ch.22 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check" value="11">
                                      <button type="submit">Check</button>
                                 </form>
                             {% endif %}
@@ -298,11 +316,12 @@
                         <td>
                             {% if report_data_ch.23 %}
                                 {{ report_data_ch.23 }}
-                            {% elif report_data_ch.11 and report_data_ch.23 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.11 %}
+                            {% elif report_data_ch.11 and report_data_ch.23 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
                                 <form method="post" action="{% url 'check_action' %}">
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check" value="12">
                                      <button type="submit">Check</button>
                                 </form>
                             {% endif %}
@@ -312,44 +331,108 @@
                         <td><h6> Approved by: </h6></td>
                         <td>( {{ user_list_data.0 }} )</td>
                         <td></td>
-                         <td>
+                        <td>
                             {% if report_data_ch.24 %}
                                 {{ report_data_ch.24 }}
+                            {% elif report_data_ch.12 and report_data_ch.24 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="1">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.25 %}
                                 {{ report_data_ch.25 }}
+                            {% elif report_data_ch.13 and report_data_ch.25 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="2">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.26 %}
                                 {{ report_data_ch.26 }}
+                            {% elif report_data_ch.14 and report_data_ch.26 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="3">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.27 %}
                                 {{ report_data_ch.27 }}
+                            {% elif report_data_ch.15 and report_data_ch.27 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="4">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.28 %}
                                 {{ report_data_ch.28 }}
+                            {% elif report_data_ch.16 and report_data_ch.28 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="5">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.29 %}
                                 {{ report_data_ch.29 }}
+                            {% elif report_data_ch.17 and report_data_ch.29 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="6">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.30 %}
                                 {{ report_data_ch.30 }}
+                            {% elif report_data_ch.18 and report_data_ch.30 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="7">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.31 %}
                                 {{ report_data_ch.31 }}
+                            {% elif report_data_ch.19 and report_data_ch.31 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="8">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
@@ -360,6 +443,7 @@
                                     {% csrf_token %}
                                     <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
                                     <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="9">
                                     <button type="submit">Approve</button>
                                 </form>
                             {% endif %}
@@ -367,16 +451,40 @@
                         <td>
                             {% if report_data_ch.33 %}
                                 {{ report_data_ch.33 }}
+                            {% elif report_data_ch.21 and report_data_ch.33 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="10">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.34 %}
                                 {{ report_data_ch.34 }}
+                            {% elif report_data_ch.22 and report_data_ch.34 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="11">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                         <td>
                             {% if report_data_ch.35 %}
                                 {{ report_data_ch.35 }}
+                            {% elif report_data_ch.23 and report_data_ch.35 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                <form method="post" action="{% url 'check_action2' %}">
+                                    {% csrf_token %}
+                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                    <input type="hidden" name="month_check2" value="12">
+                                    <button type="submit">Approve</button>
+                                </form>
                             {% endif %}
                         </td>
                     </tr>
@@ -396,23 +504,23 @@
                                 <th>ชื่ออุปกรณ์</th>
                                 <th>รายละเอียดการเช็ค</th>
                                 <th>รหัสอุปกรณ์</th>
-                                <th>Jan</th>
-                                <th>Feb</th>
-                                <th>Mar</th>
-                                <th>Apr</th>
-                                <th>May</th>
-                                <th>Jun</th>
-                                <th>Jul</th>
-                                <th>Aug</th>
-                                <th>Sep</th>
-                                <th>Oct</th>
-                                <th>Nov</th>
-                                <th>Dec</th>
+                                <th class = "text-center">Jan</th>
+                                <th class = "text-center">Feb</th>
+                                <th class = "text-center">Mar</th>
+                                <th class = "text-center">Apr</th>
+                                <th class = "text-center">May</th>
+                                <th class = "text-center">Jun</th>
+                                <th class = "text-center">Jul</th>
+                                <th class = "text-center">Aug</th>
+                                <th class = "text-center">Sep</th>
+                                <th class = "text-center">Oct</th>
+                                <th class = "text-center">Nov</th>
+                                <th class = "text-center">Dec</th>
                             </tr>
                      </thead>
                     <tbody id="tr2">
                         {% for item in report_data %}
-                        <tr>
+                        <tr data-item-id="{{ item.id }}">
                             <td>
                                 {% ifchanged item.Head %}
                                     {{ item.Head }}
@@ -426,24 +534,24 @@
                                     {% endif %}
                                 {% endifchanged %}
                             </td>
-                            <td>{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck6 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck7 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck8 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck9 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck10 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck11 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                            <td>{% if item.valuecheck12 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck1 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck6 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck7 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck8 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck9 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck10 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck11 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                            <td class = "text-center">{% if item.valuecheck12 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
                             <!-- เพิ่มคอลัมน์สำหรับ Value 3 ถึง Value 12 ตามต้องการ -->
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tbody id="tr21">
-                      <tr>
+                        <tr>
                         <td><h6> Inspected by: </h6></td>
                         <td>( {{ user_list_data.1 }} )</td>
                         <td></td>
@@ -508,227 +616,328 @@
                             {% endif %}
                         </td>
                     </tr>
-                      <tr>
-                        <td><h6> Checked by: </h6></td>
-                        <td>( {{ user_list_data.2 }} )</td>
-                        <td></td>
-                        <td>
-                            {% if report_data_ch.12 %}
-                                {{ report_data_ch.12 }}
-                            {% elif report_data_ch.0 and report_data_ch.12 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.0 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.13 %}
-                                {{ report_data_ch.13 }}
-                            {% elif report_data_ch.1 and report_data_ch.13 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.1 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.14 %}
-                                {{ report_data_ch.14 }}
-                            {% elif report_data_ch.2 and report_data_ch.14 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.2 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.15 %}
-                                {{ report_data_ch.15 }}
-                            {% elif report_data_ch.3 and report_data_ch.15 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.3 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.16 %}
-                                {{ report_data_ch.16 }}
-                            {% elif report_data_ch.4 and report_data_ch.16 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.4 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.17 %}
-                                {{ report_data_ch.17 }}
-                            {% elif report_data_ch.5 and report_data_ch.17 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.5 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.18 %}
-                                {{ report_data_ch.18 }}
-                            {% elif report_data_ch.6 and report_data_ch.18 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.6 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.19 %}
-                                {{ report_data_ch.19 }}
-                            {% elif report_data_ch.7 and report_data_ch.19 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.7 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.20 %}
-                                {{ report_data_ch.20 }}
-                            {% elif report_data_ch.8 and report_data_ch.20 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.21 %}
-                                {{ report_data_ch.21 }}
-                            {% elif report_data_ch.9 and report_data_ch.21 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                         <td>
-                            {% if report_data_ch.22 %}
-                                {{ report_data_ch.22 }}
-                            {% elif report_data_ch.10 and report_data_ch.22 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.10 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.23 %}
-                                {{ report_data_ch.23 }}
-                            {% elif report_data_ch.11 and report_data_ch.23 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.11 %}
-                                <form method="post" action="{% url 'check_action' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                     <button type="submit">Check</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                      <tr>
-                        <td><h6> Approved by: </h6></td>
-                        <td>( {{ user_list_data.0 }} )</td>
-                        <td></td>
-                         <td>
-                            {% if report_data_ch.24 %}
-                                {{ report_data_ch.24 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.25 %}
-                                {{ report_data_ch.25 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.26 %}
-                                {{ report_data_ch.26 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.27 %}
-                                {{ report_data_ch.27 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.28 %}
-                                {{ report_data_ch.28 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.29 %}
-                                {{ report_data_ch.29 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.30 %}
-                                {{ report_data_ch.30 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.31 %}
-                                {{ report_data_ch.31 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.32 %}
-                                {{ report_data_ch.32 }}
-                            {% elif report_data_ch.20 and report_data_ch.32 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
-                                <form method="post" action="{% url 'check_action2' %}">
-                                    {% csrf_token %}
-                                    <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
-                                    <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
-                                    <button type="submit">Approve</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.33 %}
-                                {{ report_data_ch.33 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.34 %}
-                                {{ report_data_ch.34 }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if report_data_ch.35 %}
-                                {{ report_data_ch.35 }}
-                            {% endif %}
-                        </td>
-                    </tr>
+                        <tr>
+                            <td><h6> Checked by: </h6></td>
+                            <td>( {{ user_list_data.2 }} )</td>
+                            <td></td>
+                            <td>
+                                {% if report_data_ch.12 %}
+                                    {{ report_data_ch.12 }}
+                                {% elif report_data_ch.0 and report_data_ch.12 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="1">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.13 %}
+                                    {{ report_data_ch.13 }}
+                                {% elif report_data_ch.1 and report_data_ch.13 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="2">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.14 %}
+                                    {{ report_data_ch.14 }}
+                                {% elif report_data_ch.2 and report_data_ch.14 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="3">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.15 %}
+                                    {{ report_data_ch.15 }}
+                                {% elif report_data_ch.3 and report_data_ch.15 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="4">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.16 %}
+                                    {{ report_data_ch.16 }}
+                                {% elif report_data_ch.4 and report_data_ch.16 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="5">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.17 %}
+                                    {{ report_data_ch.17 }}
+                                {% elif report_data_ch.5 and report_data_ch.17 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="6">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.18 %}
+                                    {{ report_data_ch.18 }}
+                                {% elif report_data_ch.6 and report_data_ch.18 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="7">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.19 %}
+                                    {{ report_data_ch.19 }}
+                                {% elif report_data_ch.7 and report_data_ch.19 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="8">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.20 %}
+                                    {{ report_data_ch.20 }}
+                                {% elif report_data_ch.8 and report_data_ch.20 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="9">
+                                        <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.21 %}
+                                    {{ report_data_ch.21 }}
+                                {% elif report_data_ch.9 and report_data_ch.21 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="10">
+                                         <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.22 %}
+                                    {{ report_data_ch.22 }}
+                                {% elif report_data_ch.10 and report_data_ch.22 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="11">
+                                         <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.23 %}
+                                    {{ report_data_ch.23 }}
+                                {% elif report_data_ch.11 and report_data_ch.23 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.8 %}
+                                    <form method="post" action="{% url 'check_action' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check" value="12">
+                                         <button type="submit">Check</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h6> Approved by: </h6></td>
+                            <td>( {{ user_list_data.0 }} )</td>
+                            <td></td>
+                            <td>
+                                {% if report_data_ch.24 %}
+                                    {{ report_data_ch.24 }}
+                                {% elif report_data_ch.12 and report_data_ch.24 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="1">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.25 %}
+                                    {{ report_data_ch.25 }}
+                                {% elif report_data_ch.13 and report_data_ch.25 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="2">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.26 %}
+                                    {{ report_data_ch.26 }}
+                                {% elif report_data_ch.14 and report_data_ch.26 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="3">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.27 %}
+                                    {{ report_data_ch.27 }}
+                                {% elif report_data_ch.15 and report_data_ch.27 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="4">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.28 %}
+                                    {{ report_data_ch.28 }}
+                                {% elif report_data_ch.16 and report_data_ch.28 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="5">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.29 %}
+                                    {{ report_data_ch.29 }}
+                                {% elif report_data_ch.17 and report_data_ch.29 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="6">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.30 %}
+                                    {{ report_data_ch.30 }}
+                                {% elif report_data_ch.18 and report_data_ch.30 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="7">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.31 %}
+                                    {{ report_data_ch.31 }}
+                                {% elif report_data_ch.19 and report_data_ch.31 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="8">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.32 %}
+                                    {{ report_data_ch.32 }}
+                                {% elif report_data_ch.20 and report_data_ch.32 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="9">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.33 %}
+                                    {{ report_data_ch.33 }}
+                                {% elif report_data_ch.21 and report_data_ch.33 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="10">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.34 %}
+                                    {{ report_data_ch.34 }}
+                                {% elif report_data_ch.22 and report_data_ch.34 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="11">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if report_data_ch.35 %}
+                                    {{ report_data_ch.35 }}
+                                {% elif report_data_ch.23 and report_data_ch.35 is null and request.session.M_username is not null and request.session.M_user_index == unity_check.9 %}
+                                    <form method="post" action="{% url 'check_action2' %}">
+                                        {% csrf_token %}
+                                        <!-- เพิ่ม input field สำหรับรับข้อมูลที่ต้องการส่งผ่าน POST -->
+                                        <input type="hidden" name="unity_check_4" value="{{ unity_check.0 }}">
+                                        <input type="hidden" name="month_check2" value="12">
+                                        <button type="submit">Approve</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
         {% elif unity_check.3 == 3 %}
@@ -755,16 +964,16 @@
                         <tbody id="tr3">
                         {% for item in report_data_ch %}
                            <tr>
-                               <td>{{ item.4 }}</td>
+                               <td>{{ item.5 }}</td>
                                <td>
-                                   {% if item.3 == 1 %}
+                                   {% if item.2 == 1 %}
                                         OK
-                                   {% elif item.3 == 2 %}
+                                   {% elif item.2 == 2 %}
                                         NO
                                    {% endif %}
                                </td>
-                               <td>{{ item.5 }}</td>
-                               <td>{{ item.6 }}</td>
+                               <td>{{ item.3 }}</td>
+                               <td>{{ item.4 }}</td>
                            </tr>
                         {% endfor %}
                         </tbody>
@@ -783,11 +992,11 @@
                             <tr>
                                 <th>ชื่ออุปกรณ์</th>
                                 <th>รายละเอียดการเช็ค</th>
-                                <th>Week1</th>
-                                <th>Week2</th>
-                                <th>Week3</th>
-                                <th>Week4</th>
-                                <th>Week5</th>
+                                <th class = "text-center">Week1</th>
+                                <th class = "text-center">Week2</th>
+                                <th class = "text-center">Week3</th>
+                                <th class = "text-center">Week4</th>
+                                <th class = "text-center">Week5</th>
 
                             </tr>
                      </thead>
@@ -800,15 +1009,15 @@
                                     {% endifchanged %}
                                 </td>
                                 <td>{{ item.subhead }}</td>
-                                <td>
+                                <td class = "text-center">
                                     {% if item.valuecheck1 %}
                                         <span class="checkmark">&#10004;</span>
                                     {% endif %}
                                 </td>
-                                <td>{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                                <td>{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                                <td>{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
-                                <td>{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td class = "text-center">{% if item.valuecheck2 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td class = "text-center">{% if item.valuecheck3 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td class = "text-center">{% if item.valuecheck4 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
+                                <td class = "text-center">{% if item.valuecheck5 %}<span class="checkmark">&#10004;</span>{% endif %}</td>
                             </tr>
                          {% endfor %}
                      </tbody>
