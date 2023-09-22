@@ -8,6 +8,7 @@ from django.http import HttpResponse,JsonResponse
 from django.db import connection,IntegrityError,connections
 from django.urls import reverse
 from datetime import datetime, timedelta
+from django.core.mail import send_mail
 
 
 
@@ -1709,7 +1710,6 @@ def m_checklist_report(request, id):
             report_data = cursor.fetchone()
             cursor.execute("""
                                    select 
-
                                            CAST(SPLIT_PART(uclc .value, '!', 1) AS INTEGER) AS id_check_list,
                                            CAST(SPLIT_PART(uclc .value, '!', 2) AS INTEGER) AS type_ch,
                                            CAST(SPLIT_PART(uclc .value, '!', 3) AS INTEGER) AS condition_ch,
@@ -1738,15 +1738,39 @@ def M_checklist_form(request, id):
         if selected_checkboxes:
             with connection.cursor() as cursor:
                 for value in selected_checkboxes:
-                    # Combine the checkbox value and remark into one value before inserting into the database
                     if remark:
                         combined_value = f"{value}!{user_id}!{remark}"
                     else:
                         combined_value = f"{value}!{user_id}"
                     cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)", [combined_value])
                 cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
+
+                cursor.execute("""
+                    SELECT ucl.user_app2, uclt.name_ch_type, dm.department_name, aa.area_name
+                    FROM unity_check_list ucl
+                    LEFT OUTER JOIN unity_check_list_type uclt ON ucl.id_ch_list_type = uclt.id
+                    LEFT OUTER JOIN department dm ON ucl.id_department = dm.id
+                    LEFT OUTER JOIN area aa ON ucl.id_area = aa.id
+                    WHERE ucl.id = %s
+                """, [id])
+                user_approve_email = cursor.fetchone()
+                with connections['user_list'].cursor() as cursor_user_list:
+                   cursor_user_list.execute("""
+                                               select email from user_list where user_index = %s
+                                               """,[user_approve_email[0]] )
+                   email = cursor_user_list.fetchone()
+                   print(email)
+            # email = 'mintorn988@gmail.com'
+            subject = f'การตรวจสอบสถานะ {user_approve_email[1]}'
+            message = f'{user_approve_email[1]}\n\nDepartment: {user_approve_email[2]}  Area: {user_approve_email[3]}\n\nได้รับการ Inspected เรียบร้อยแล้ว'
+            from_email_name = 'Smart unity check List'
+            from_email_address = 'auth@nidec-precision.co.th'
+            from_email = f'{from_email_name} <{from_email_address}>'
+            recipient_list = [email[0]]
+            print(recipient_list)
+            send_mail(subject, message, from_email, recipient_list)
             return redirect('M_checklist_report', id=id)
-        else :
+        else:
             return redirect('M_checklist_report', id=id)
     else:
         checklist_items = []
@@ -1857,7 +1881,6 @@ def check_action_view(request):
         today = datetime.now()
         end_of_month = datetime(today.year, int(month), 1) + timedelta(days=32)
         end_of_month = datetime(end_of_month.year, end_of_month.month, 1) - timedelta(days=1)
-
         # คำนวณวันที่ในรูปแบบที่ต้องการ
         formatted_date = end_of_month.strftime('%Y-%m-%d')
         print(unity_check)
@@ -1867,8 +1890,32 @@ def check_action_view(request):
         value_app = f"{unity_check}!{user_id}!{user_index}!3"
         print(value_app)
         with connections['default'].cursor() as cursor:
-            cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)",
+             cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)",
                            [value_app, formatted_date])
+             cursor.execute("""select ucl.user_app3,uclt.name_ch_type,dm.department_name,aa.area_name from unity_check_list  ucl 
+				left outer join unity_check_list_type uclt on ucl.id_ch_list_type = uclt.id
+				LEFT OUTER JOIN department dm ON ucl.id_department = dm.id
+				LEFT OUTER JOIN area  aa ON ucl.id_area = aa.id
+				where ucl.id = %s """
+                            ,[unity_check])
+             user_approve_email = cursor.fetchone()
+             print(user_approve_email[0])
+             with connections['user_list'].cursor() as cursor_user_list:
+                cursor_user_list.execute("""
+                                            select email from user_list where user_index = %s
+                                            """,[user_approve_email[0]] )
+                email = cursor_user_list.fetchone()
+        # email = 'mintorn988@gmail.com'
+        print(email)
+        subject = f'การตรวจสอบสถานะ {user_approve_email[1]}'
+        message = f' {user_approve_email[1]} \n\n Department : {user_approve_email[2]}  Area : {user_approve_email[3]}\n\nได้รับการChecked เรียบร้อยแล้ว'
+        from_email_name = 'Smart unity check List'
+        from_email_address = 'auth@nidec-precision.co.th'
+        from_email = f'{from_email_name} <{from_email_address}>'
+        recipient_list = [email[0]]  # แทนที่ด้วยอีเมลผู้รับ
+
+        send_mail(subject, message, from_email, recipient_list)
+
         return redirect('M_checklist_report', id= unity_check)  # แทน 'your_previous_url_name' ด้วยชื่อ URL ที่คุณต้องการกลับไป
 
 def check_action_view2(request):
@@ -1894,6 +1941,34 @@ def check_action_view2(request):
                            [value_app, formatted_date])
         return redirect('M_checklist_report', id= unity_check)
 
+def re_check_action_view(request):
+    if request.method == 'POST':
+        # รับข้อมูลที่ส่งมาจากแบบฟอร์ม
+        unity_check = request.POST.get('unity_check_4')
+        month = request.POST.get('month_check')
+        print(month)
+        today = datetime.now()
+        end_of_month = datetime(today.year, int(month), 1) + timedelta(days=32)
+        end_of_month = datetime(end_of_month.year, end_of_month.month, 1) - timedelta(days=1)
+
+        # คำนวณวันที่ในรูปแบบที่ต้องการ
+        formatted_date = end_of_month.strftime('%Y-%m-%d')
+        print(unity_check)
+        user_id = request.session.get('M_username')
+        print(user_id)
+        user_index = request.session.get('M_user_index')
+        value_app = f"{unity_check}!{user_id}!{user_index}!3"
+        print(value_app)
+        with connections['default'].cursor() as cursor:
+            cursor.execute("""DELETE FROM public.unity_user_approve
+                                WHERE split_part(unity_user_approve.value, '!', 1)= %s and EXTRACT(MONTH FROM unity_user_approve.date_log)= %s 
+                                and EXTRACT(YEAR FROM unity_user_approve.date_log) = EXTRACT(YEAR FROM NOW())""",
+                           [unity_check, month])
+            cursor.execute("""DELETE FROM public.unity_check_list_content
+                              WHERE split_part(unity_check_list_content.value, '!', 1)  =%s and EXTRACT(MONTH FROM unity_check_list_content.ref_date) =%s
+                              and EXTRACT(YEAR FROM unity_check_list_content.ref_date) = EXTRACT(YEAR FROM NOW())""",
+                           [unity_check, month])
+        return redirect('M_checklist_report', id= unity_check)
 
 def M_back_checklist_form(request, id):
     if request.method == 'POST':
@@ -1915,6 +1990,30 @@ def M_back_checklist_form(request, id):
                         combined_value = f"{value}!{user_id}"
                     cursor.execute("INSERT INTO unity_check_list_content (value,ref_date) VALUES (%s,%s)", [combined_value,month])
                 cursor.execute("INSERT INTO unity_user_approve (value,date_log) VALUES (%s,%s)", [value_app,month])
+                cursor.execute("""
+                                   SELECT ucl.user_app2, uclt.name_ch_type, dm.department_name, aa.area_name
+                                   FROM unity_check_list ucl
+                                   LEFT OUTER JOIN unity_check_list_type uclt ON ucl.id_ch_list_type = uclt.id
+                                   LEFT OUTER JOIN department dm ON ucl.id_department = dm.id
+                                   LEFT OUTER JOIN area aa ON ucl.id_area = aa.id
+                                   WHERE ucl.id = %s
+                               """, [id])
+                user_approve_email = cursor.fetchone()
+                with connections['user_list'].cursor() as cursor_user_list:
+                   cursor_user_list.execute("""
+                                               select email from user_list where user_index = %s
+                                               """,[user_approve_email[0]] )
+                   email = cursor_user_list.fetchone()
+                   print(email)
+            # email = 'mintorn988@gmail.com'
+            subject = f'การตรวจสอบสถานะ {user_approve_email[1]}'
+            message = f'{user_approve_email[1]}\n\nDepartment: {user_approve_email[2]}  Area: {user_approve_email[3]}\n\nได้รับการ Inspected ย้อนหลัง เรียบร้อยแล้ว'
+            from_email_name = 'Smart unity check List'
+            from_email_address = 'auth@nidec-precision.co.th'
+            from_email = f'{from_email_name} <{from_email_address}>'
+            recipient_list = [email[0]]
+
+            send_mail(subject, message, from_email, recipient_list)
             return redirect('M_checklist_report', id=id)
         else :
             return redirect('M_checklist_report', id=id)
