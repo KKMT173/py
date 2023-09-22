@@ -42,6 +42,7 @@ urlpatterns = [
     path('M_back_checklist_form/<int:id>/', views.M_back_checklist_form, name='M_back_checklist_form'),
     path('check_action/', views.check_action_view, name='check_action'),
     path('check_action2/', views.check_action_view2, name='check_action2'),
+    path('re_check_action/', views.re_check_action_view, name='re_check_action'),
     # path('unity_checklist/<int:checklist_id>/', views.unity_checklist, name='unity_checklist'),
     # path('process_checklist/', views.process_checklist, name='process_checklist'),
     # path('master/', views.master, name='master'),

@@ -618,27 +618,55 @@ def generate_qr_code(request):
                 # Set the data variable with unity_check_list_id
                 base_url = request.build_absolute_uri('/')
                 # data = f"{unity_check_list_id}"
-                data = f"{base_url}M_checklist_report/{unity_check_list_id}/"  # URL ของหน้า "Checklist report"
-                print(unity_check_list_id)
+                # data = f"{base_url}M_checklist_report/{unity_check_list_id}/"  # URL ของหน้า "Checklist report"
+                # print(unity_check_list_id)
+                #
+                # # Generate QR code
+                # qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+                # qr.add_data(data)
+                # qr.make(fit=True)
+                # img = qr.make_image(fill_color='black', back_color='white')
+                #
+                # # Save the QR code image to a BytesIO object
+                # buffer = BytesIO()
+                # img.save(buffer, format='PNG')
+                # qr_code_image = buffer.getvalue()
+                #
+                # # Save the QR code image to the desired location
+                # qr_code_filename = f"{unity_check_list_id}.png"
+                # qr_code_path = os.path.join("qrcodes", qr_code_filename)
+                # full_qr_code_path = os.path.join(settings.MEDIA_ROOT, qr_code_path)
+                # with open(full_qr_code_path, "wb") as f:
+                #     f.write(qr_code_image)
+                qr_code_data1 = f"{base_url}M_checklist_report/{unity_check_list_id}"
+                qr1 = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+                qr1.add_data(qr_code_data1)
+                qr1.make(fit=True)
+                img1 = qr1.make_image(fill_color='black', back_color='white')
+                buffer1 = BytesIO()
+                img1.save(buffer1, format='PNG')
+                qr_code_image1 = buffer1.getvalue()
+                qr_code_filename1 = f"{unity_check_list_id}_1.png"
+                qr_code_path1 = os.path.join("qrcodes", qr_code_filename1)
+                full_qr_code_path1 = os.path.join(settings.MEDIA_ROOT, qr_code_path1)
+                with open(full_qr_code_path1, "wb") as f1:
+                    f1.write(qr_code_image1)
 
-                # Generate QR code
-                qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
-                qr.add_data(data)
-                qr.make(fit=True)
-                img = qr.make_image(fill_color='black', back_color='white')
-
-                # Save the QR code image to a BytesIO object
-                buffer = BytesIO()
-                img.save(buffer, format='PNG')
-                qr_code_image = buffer.getvalue()
-
-                # Save the QR code image to the desired location
-                qr_code_filename = f"{unity_check_list_id}.png"
-                qr_code_path = os.path.join("qrcodes", qr_code_filename)
-                full_qr_code_path = os.path.join(settings.MEDIA_ROOT, qr_code_path)
-                with open(full_qr_code_path, "wb") as f:
-                    f.write(qr_code_image)
-
+                # สร้าง QR code และบันทึกไฟล์ QR code ที่สอง
+                qr_code_data2 = f"{base_url}M_checklist_report/{unity_check_list_id}"
+                # qr_code_data2 = f"https://www.rapidtables.com/web/color/RGB_Color.html"
+                qr2 = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+                qr2.add_data(qr_code_data2)
+                qr2.make(fit=True)
+                img2 = qr2.make_image(fill_color='black', back_color='white')
+                buffer2 = BytesIO()
+                img2.save(buffer2, format='PNG')
+                qr_code_image2 = buffer2.getvalue()
+                qr_code_filename2 = f"{unity_check_list_id}_2.png"
+                qr_code_path2 = os.path.join("qrcodes", qr_code_filename2)
+                full_qr_code_path2 = os.path.join(settings.MEDIA_ROOT, qr_code_path2)
+                with open(full_qr_code_path2, "wb") as f2:
+                    f2.write(qr_code_image2)
                 # Generate the URL for the "Checklist report" using the reverse function
                 report_url = reverse('checklist_report', args=[unity_check_list_id])
                 # Redirect to the "Checklist report" page after successfully generating QR code

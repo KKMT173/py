@@ -83,8 +83,21 @@ WSGI_APPLICATION = 'WebsmartunityQR.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# Django settings.py
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'onemail.one.th'  # ชื่อโฮสต์ SMTP ของคุณ
+EMAIL_PORT = 465  # พอร์ต SMTP ของคุณ
+EMAIL_USE_SSL = True  # ใช้ SSL หรือไม่ (ถ้าใช้ SSL, ให้เปลี่ยนเป็น True)
+EMAIL_HOST_USER = 'auth@nidec-precision.co.th'  # ชื่อผู้ใช้ SMTP ของคุณ
+EMAIL_HOST_PASSWORD = 'Nis_2022'  # รหัสผ่าน SMTP ของคุณ
+EMAIL_USE_TLS = False  # ไม่ใช้ TLS
 
+DEFAULT_FROM_EMAIL = 'auth@nidec-precision.co.th'  # ที่อยู่อีเมลเริ่มต้นสำหรับการส่ง
+SERVER_EMAIL = 'notify@nidec-precision.co.th'  # ที่อยู่อีเมลของเซิร์ฟเวอร์ (สำหรับการแจ้งเตือนข้อผิดพลาด)
+
+# แนะนำ: ใส่ค่าของคุณในไฟล์ .env เพื่อเก็บความลับและไม่เผยแพร่รหัสผ่าน
+# คุณสามารถใช้ python-decouple หรือ python-dotenv เพื่อดำเนินการนี้
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
