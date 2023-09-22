@@ -6,51 +6,62 @@
     {% bootstrap_css %}
     {% include 'header.html' %}
     {% load static %}
+     <style>
+        .container-table {
+            background-color:#EEFFF0; /* Set background color for the container */
+            padding: 10px; /* Add padding for spacing */
+            border-radius: 20px;
+            box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="center-align">
-            <a>
-               <br><h4> User List </h4>
-            </a>
-            <a href="{% url 'adduser' %}" class="btn btn-link">
-               <br> <img src="{% static 'pic/add.jpg' %}" class="rounded image" alt="add" width="27px" height="27px">
-            </a>
-    </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th class="text-center">Edit/Delete User</th>
-                    <th>รหัสพนักงาน</th>
-                    <th>Username</th>
-                    <th>Department</th>
-                    <th>Section</th>
-                    <th>User Type</th>
-                </tr>
-            </thead>
-            <tbody id="tr">
-                     {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td class ="text-center">
-                        <a href="{% url 'useredit' user.id %}" class="btn btn-link">
-                            <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
-                        </a>
-                        <a href="{% url 'userdelete' user.id %}" class="btn btn-link" onclick="return confirm('ยืนยันการลบผู้ใช้งาน')">
-                            <img src="{% static 'pic/del.PNG' %}" class="rounded" alt="edit" width="25px" height="25px">
-                        </a>
-                    </td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.full_name }}</td>
-                    <td>{{ user.department_name }}</td>
-                    <td>{{ user.section_name }}</td>
-                    <td>{{ user.user_type }}</td>
-                </tr>
-                {% endfor %}
+        <br>
+        <div class="container-table">
+            <div class="center-align">
+                <a>
+                   <br><h4> User List </h4>
+                </a>
+                <a href="{% url 'adduser' %}" class="btn btn-link">
+                   <br> <img src="{% static 'pic/add.jpg' %}" class="rounded image" alt="add" width="27px" height="27px">
+                </a>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th class="text-center">Edit/Delete User</th>
+                        <th>รหัสพนักงาน</th>
+                        <th>Username</th>
+                        <th>Department</th>
+                        <th>Section</th>
+                        <th>User Type</th>
+                    </tr>
+                </thead>
+                <tbody id="tr">
+                         {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td class ="text-center">
+                            <a href="{% url 'useredit' user.id %}" class="btn btn-link">
+                                <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
+                            </a>
+                            <a href="{% url 'userdelete' user.id %}" class="btn btn-link" onclick="return confirm('ยืนยันการลบผู้ใช้งาน')">
+                                <img src="{% static 'pic/del.PNG' %}" class="rounded" alt="edit" width="25px" height="25px">
+                            </a>
+                        </td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.department_name }}</td>
+                        <td>{{ user.section_name }}</td>
+                        <td>{{ user.user_type }}</td>
+                    </tr>
+                    {% endfor %}
 
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

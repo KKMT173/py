@@ -6,63 +6,79 @@
     {% bootstrap_css %}
     {% include 'header.html' %}
     {% load static %}
+    <style>
+        .container-table {
+            background-color:#EEFFF0; /* Set background color for the container */
+            padding: 10px; /* Add padding for spacing */
+            border-radius: 20px;
+            box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+
 </head>
 <body>
     <div class="container">
-        <div class="center-align">
-            <a>
-               <br><h4> List Unity Check List </h4>
-            </a>
-    </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>QR Code</th>
-                    <th>Department</th>
-                    <th>Area</th>
-                    <th>ชนิดแบบฟอร์ม</th>
-                    <th>วันที่</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tr">
-                     {% for listchecklist in listchecklists %}
-                <tr>
-                    <td>{{ listchecklist.0 }}</td>
-                    <td>
-                        <a href="#" class="btn btn-link" onclick="showQRCode('{{ listchecklist.0 }}')">
-                            <img src="{% static 'pic/QR.PNG' %}" class="rounded" alt="QRcode" width="25px" height="25px">
-                        </a>
-                    </td>
-                    <td>{{ listchecklist.1 }}</td>
-                    <td>{{ listchecklist.2 }}</td>
-                    <td>{{ listchecklist.3 }}</td>
-                    <td>{{ listchecklist.4 }}</td>
-                    <td>
-                        <a href="{% url 'checklist_form' listchecklist.0 %}" class="btn btn-link">
-                            <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{% url 'checklist_report' listchecklist.0 %}" class="btn btn-link">
-                            <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
-                        </a>
-                    </td>
-                {% endfor %}
+        <br>
+        <div class="container-table">
+            <div class="center-align">
+                <a>
+                   <br><h4> List Unity Check List </h4>
+                </a>
+            </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class = "text-center">ID</th>
+                            <th class = "text-center">QR Code</th>
+                            <th class = "text-center">Department</th>
+                            <th class = "text-center">Area</th>
+                            <th class = "text-center">ชนิดแบบฟอร์ม</th>
+                            <th class = "text-center">วันที่</th>
+                            <th class = "text-center"></th>
+                            <th class = "text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tr">
+                             {% for listchecklist in listchecklists %}
+                        <tr>
+                            <td class = "text-center">{{ listchecklist.0 }}</td>
+                            <td class = "text-center">
+                                <a href="#" class="btn btn-link" onclick="showQRCode('{{ listchecklist.0 }}_1')">
+                                    <img src="{% static 'pic/QR.PNG' %}" class="rounded" alt="QRcode" width="25px" height="25px">
+                                </a>
+                                <a href="#" class="btn btn-link" onclick="showQRCode('{{ listchecklist.0 }}_2')">
+                                    <img src="{% static 'pic/QR.PNG' %}" class="rounded" alt="QRcode" width="25px" height="25px">
+                                </a>
+                             </td>
+                            <td class = "text-center">{{ listchecklist.1 }}</td>
+                            <td class = "text-center">{{ listchecklist.2 }}</td>
+                            <td class = "text-center">{{ listchecklist.3 }}</td>
+                            <td class = "text-center">{{ listchecklist.4 }}</td>
+<!--                            <td>-->
+<!--                                <a href="{% url 'checklist_form' listchecklist.0 %}" class="btn btn-link">-->
+<!--                                    <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">-->
+<!--                                </a>-->
+<!--                            </td>-->
+                            <td class = "text-center">
+                                <a href="{% url 'checklist_report' listchecklist.0 %}" class="btn btn-link">
+                                    <img src="{% static 'pic/edit.PNG' %}" class="rounded" alt="edit" width="20px" height="25px">
+                                </a>
+                            </td>
+                        {% endfor %}
 
-            </tbody>
-        </table>
-    <script>
-        function showQRCode(qrCodePath) {
-            // สร้าง URL ของภาพ QR Code ด้วยค่าจากคอลัมน์ qr_code และที่อยู่ของไฟล์
-            const qrCodeURL = `../media/qrcodes/${qrCodePath}.png`;
+                    </tbody>
+                </table>
+            <script>
+                function showQRCode(qrCodePath) {
+                    // สร้าง URL ของภาพ QR Code ด้วยค่าจากคอลัมน์ qr_code และที่อยู่ของไฟล์
+                    const qrCodeURL = `../media/qrcodes/${qrCodePath}.png`;
 
-            // เปิดหน้าต่างใหม่แสดงภาพ QR Code
-            window.open(qrCodeURL, '_blank', 'width=400,height=400');
-        }
-    </script>
+                    // เปิดหน้าต่างใหม่แสดงภาพ QR Code
+                    window.open(qrCodeURL, '_blank', 'width=400,height=400');
+                }
+            </script>
+
+        </div>
     </div>
 </body>
 </html>
