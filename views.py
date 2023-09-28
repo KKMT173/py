@@ -7,7 +7,7 @@ from io import BytesIO
 from django.http import HttpResponse,JsonResponse
 from django.db import connection,IntegrityError,connections
 from django.urls import reverse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
 from django.core.mail import send_mail
 
 
@@ -1758,18 +1758,38 @@ def m_checklist_report(request, id):
 
 def M_checklist_form(request, id):
     if request.method == 'POST':
+
         selected_checkboxes = request.POST.getlist('checklist_item_sub')  # Get selected checkboxes
-        remark = request.POST.get('remark', '')  # Get the value of "remark"
+        remark = request.POST.get('remark', '')
+
+        print(selected_checkboxes)
+        # Get the value of "remark"
+        # คำสั่ง SQL และการเพิ่มข้อมูลลงในฐานข้อมูล
         user_id = request.session.get('M_username')
         user_index = request.session.get('M_user_index')
         value_app = f"{id}!{user_id}!{user_index}!2"
+        # print(value_app)
+        # if selected_checkboxes:
+        #     with connection.cursor() as cursor:
+        #         for value in selected_checkboxes:
+        #             if remark:
+        #                 combined_value = f"{value}!{user_id}!{remark}"
+        #             else:
+        #                 combined_value = f"{value}!{user_id}"
+        #             cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)", [combined_value])
+        #         cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
         if selected_checkboxes:
             with connection.cursor() as cursor:
                 for value in selected_checkboxes:
                     if remark:
                         combined_value = f"{value}!{user_id}!{remark}"
                     else:
-                        combined_value = f"{value}!{user_id}"
+                        # ตรวจสอบว่า remark1 มีค่าหรือไม่และเพิ่มค่า remark1 เข้าไปใน combined_value
+                        remark1 = request.POST.get('remark1')  # รับค่า remark1 จาก request
+                        if remark1:
+                            combined_value = f"{value}!{user_id}!{remark1}"
+                        else:
+                            combined_value = f"{value}!{user_id}"
                     cursor.execute("INSERT INTO unity_check_list_content (value) VALUES (%s)", [combined_value])
                 cursor.execute("INSERT INTO unity_user_approve (value) VALUES (%s)", [value_app])
 
@@ -1787,15 +1807,16 @@ def M_checklist_form(request, id):
                                                select email from user_list where user_index = %s
                                                """,[user_approve_email[0]] )
                    email = cursor_user_list.fetchone()
-                   print(email)
-            # email = 'mintorn988@gmail.com'
+                   # print(email)
+            email = 'mintorn-ta@nidec-precision.co.th'
             subject = f'การตรวจสอบสถานะ {user_approve_email[1]}'
             message = f'{user_approve_email[1]}\n\nDepartment: {user_approve_email[2]}  Area: {user_approve_email[3]}\n\nได้รับการ Inspected เรียบร้อยแล้ว'
             from_email_name = 'Smart unity check List'
             from_email_address = 'auth@nidec-precision.co.th'
             from_email = f'{from_email_name} <{from_email_address}>'
-            recipient_list = [email[0]]
-            print(recipient_list)
+            # recipient_list = [email[0]]
+            recipient_list = [email]
+            # print(recipient_list)
             send_mail(subject, message, from_email, recipient_list)
             return redirect('M_checklist_report', id=id)
         else:
@@ -2214,3 +2235,10 @@ def M_logout_view(request):
     id = request.GET.get('id')  # รับ ID จากพารามิเตอร์
     return redirect(f'/M_checklist_report/{id}/')
 
+
+def back_date(request):
+    # รับวันที่ปัจจุบัน
+    current_date = date.today()
+
+    # ส่งค่า current_date ไปยัง HTML template
+    return render(request, 'M_backchecklist.html', {'currentDate': current_date})

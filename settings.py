@@ -116,7 +116,31 @@ DATABASES = {
         'PORT': '5433',  # หรือพอร์ตที่คุณใช้
     }
 }
-
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'smart_un_ch_list',
+#         'USER': 'user_setup',
+#         'PASSWORD': 'user_setup',
+#         'HOST': '172.30.1.15',
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'timezone': 'UTC',
+#         },
+#     },
+#
+#     'user_list': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'user_list',  # ชื่อฐานข้อมูลของคุณ
+#         'USER': 'user_setup',  # ชื่อผู้ใช้ของฐานข้อมูล user_list
+#         'PASSWORD': 'user_setup',  # รหัสผ่านของฐานข้อมูล user_list
+#         'HOST': '172.30.1.15',  # หรือโฮสต์อื่น ๆ ที่คุณใช้
+#         'PORT': '5432',  # หรือพอร์ตที่คุณใช้
+#         'OPTIONS': {
+#                     'timezone': 'UTC',
+#                 },
+#         }
+#     }
+# TIME_ZONE = 'UTC'
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
