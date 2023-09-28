@@ -36,6 +36,14 @@
                 <label for="month" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
                     <input type="date" id="month" name="selectedDate">
                 </label>
+                <script>
+                    // หากคุณต้องการเรียกใช้งาน `max` attribute เมื่อหน้าเว็บถูกโหลด
+                    window.onload = function () {
+                        const currentDate = new Date().toISOString().split('T')[0]; // วันที่ปัจจุบัน
+                        document.getElementById('month').setAttribute('max', currentDate);
+                    };
+                </script>
+
                 <br>
                     {% for item in checklist_items %}
                         {% ifchanged item.4 %}
@@ -48,7 +56,7 @@
                             {% endifchanged %}
                                 <label>
                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
-                                    {{ item.7 }} <!-- un_sub_num -->
+                                    {{ item.7 }}  <!-- un_sub_num -->
                                 </label>
                                     <br>
                     {% endfor %}
@@ -74,6 +82,13 @@
             <label for="month2" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
                     <input type="date" id="month2" name="selectedDate">
             </label>
+            <script>
+                // หากคุณต้องการเรียกใช้งาน `max` attribute เมื่อหน้าเว็บถูกโหลด
+                window.onload = function () {
+                    const currentDate = new Date().toISOString().split('T')[0]; // วันที่ปัจจุบัน
+                    document.getElementById('month2').setAttribute('max', currentDate);
+                };
+            </script>
                 {% for item in checklist_items %}
                     {% ifchanged item.3 %}
                         <br>
@@ -113,6 +128,13 @@
             <label for="month3" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
                 <input type="date" id="month3" name="selectedDate">
             </label>
+            <script>
+                // หากคุณต้องการเรียกใช้งาน `max` attribute เมื่อหน้าเว็บถูกโหลด
+                window.onload = function () {
+                    const currentDate = new Date().toISOString().split('T')[0]; // วันที่ปัจจุบัน
+                    document.getElementById('month3').setAttribute('max', currentDate);
+                };
+            </script>
                   {% for item3 in checklist_items %}
                     <br>
                     <h3>ยืนยันความสมบูรณ์ของถังดับเพลิง</h3>
@@ -141,6 +163,13 @@
             <label for="month4" class="col">&nbsp;&nbsp;&nbsp;วันที่เช็คย้อนหลัง :&nbsp;&nbsp;
                 <input type="date" id="month4" name="selectedDate">
             </label>
+            <script>
+                // หากคุณต้องการเรียกใช้งาน `max` attribute เมื่อหน้าเว็บถูกโหลด
+                window.onload = function () {
+                    const currentDate = new Date().toISOString().split('T')[0]; // วันที่ปัจจุบัน
+                    document.getElementById('month4').setAttribute('max', currentDate);
+                };
+            </script>
                 {% for item in checklist_items %}
                     {% ifchanged item.2 %}
                         <br>

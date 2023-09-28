@@ -1,7 +1,7 @@
 <html>
 {% if request.session.M_username %}
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Checklist Form</title>
     {% load static %}
     {% load bootstrap5 %}
@@ -11,6 +11,21 @@
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+        input[type="checkbox"] {
+        width: 20px; /* กำหนดความกว้าง */
+        height: 20px; /* กำหนดความสูง */
+        }
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px; /* กำหนดขนาดตัวอักษรเล็กลงสำหรับหน้าจอขนาดเล็ก */
+            }
+        }
+        /* ขนาดตัวอักษรสำหรับหน้าจอขนาดกลางขึ้นไป (เช่น แท็บเล็ตและเดสก์ท็อป) */
+        @media (min-width: 769px) {
+            body {
+                font-size: 16px; /* กำหนดขนาดตัวอักษรมาตรฐานสำหรับหน้าจอขนาดกลาง */
+            }
         }
     </style>
 </head>
@@ -42,8 +57,10 @@
                                 <!-- Detail Name - Display only once per change -->
                             {% endifchanged %}
                                 <label>
-                                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
-                                    {{ item.7 }} <!-- un_sub_num -->
+                                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+                                    <input type="checkbox" name="checklist_item_sub" value="{{ item.8 }}">
+                                            {{ item.7 }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<!--                                    <input type="text" id="remark1" name="remark1" placeholder="หมายเหตุ">-->
                                 </label>
                                     <br>
                     {% endfor %}
